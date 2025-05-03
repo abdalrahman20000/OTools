@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Analyzer Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* Custom styles */
+      .bg-grid-gray-100 {
+        background-image: radial-gradient(#f0f0f0 1px, transparent 1px);
+        background-size: 16px 16px;
+      }
+      .bg-noise {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      }
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+
+      /* Custom textarea scrollbar */
+      textarea::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      textarea::-webkit-scrollbar-track {
+        background: rgba(200, 200, 200, 0.1);
+        border-radius: 4px;
+      }
+
+      textarea::-webkit-scrollbar-thumb {
+        background: rgba(255, 100, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      textarea::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 100, 0, 0.4);
+      }
+
+      /* Image preview styling */
+      .image-preview {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: contain;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+
+      .image-preview:hover {
+        transform: scale(1.5);
+        z-index: 10;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Loading spinner */
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Table styling */
+      .table-container {
+        background-color: white;
+        padding: 25px;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow-x: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0 auto;
+        font-size: 0.95rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 15px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #2d3748;
+        color: white;
+        position: sticky;
+        top: 0;
+        font-weight: 600;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      tr:hover {
+        background-color: #ebf8ff;
+        transition: all 0.3s ease;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gray-50 text-gray-800">
+    <!-- Header - Dark Gray with gradient accent -->
+    <header class="sticky top-0 z-50 bg-gray-900 shadow-lg">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex items-center justify-between py-4">
+          <div
+            class="flex items-center space-x-2 transition duration-300 hover:scale-105"
+          >
+            <div
+              class="bg-gradient-to-br from-orange-500 to-red-600 p-2 rounded-[3px] relative overflow-hidden shadow-lg"
+            >
+              <!-- Orange glow effect -->
+              <div
+                class="absolute inset-0 bg-orange-400 rounded-full blur-md opacity-60 scale-75 animate-pulse"
+              ></div>
+              <!-- Nut icon above the white line -->
+              <i
+                id="header-nut-icon"
+                class="h-5 w-5 text-white relative z-10 pb-0.5"
+              ></i>
+              <!-- White line in bottom center of square -->
+              <div
+                class="w-4/5 h-1 bg-white absolute bottom-1 left-0 ml-1 rounded-[1px]"
+              ></div>
+            </div>
+            <span class="text-2xl font-bold">
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500"
+              >
+                O<span class="text-white">Tools</span>
+              </span>
+            </span>
+          </div>
+          <nav class="hidden md:flex space-x-6 items-center">
+            <a
+              href="index.html"
+              class="text-white transition font-medium hover:text-orange-300"
+              >Tools</a
+            >
+            <span
+              class="text-gray-400 hover:text-gray-300 cursor-not-allowed relative group"
+            >
+              Team
+            </span>
+            <div class="h-5 w-px bg-gray-600"></div>
+            <span
+              class="text-gray-400 hover:text-gray-300 cursor-not-allowed relative group"
+            >
+              Contact
+            </span>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Header highlight decoration -->
+    <div
+      class="h-1 w-full bg-gradient-to-r from-orange-500 via-red-500 to-purple-600"
+    ></div>
+
+    <!-- Main Content Section -->
+    <div class="py-10 bg-white relative min-h-[80vh]">
+      <!-- Subtle background pattern -->
+      <div class="absolute inset-0 bg-grid-gray-100 opacity-30"></div>
+
+      <div class="max-w-5xl mx-auto px-4 relative z-10">
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+          <h1 class="text-3xl font-bold text-gray-800">Image URL Analyzer</h1>
+          <p class="text-gray-600 mt-2">
+            Analyze image URLs and generate detailed reports
+          </p>
+        </div>
+
+        <!-- Data Input Section -->
+        <div class="mb-8">
+          <div class="relative">
+            <!-- Input label with icon -->
+            <div class="flex items-center mb-3 space-x-2">
+              <div class="bg-gray-800 p-1.5 rounded-md">
+                <i id="data-icon" class="h-4 w-4 text-white"></i>
+              </div>
+              <label
+                for="data-input"
+                class="text-lg font-semibold text-gray-700"
+                >Enter Image URLs (one per line)</label
+              >
+            </div>
+
+            <!-- Textarea with enhanced styling -->
+            <textarea
+              id="data-input"
+              rows="12"
+              class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all duration-300 shadow-inner bg-white bg-opacity-80 font-mono text-sm"
+              placeholder="Paste image URLs here, one per line...
+Example:
+https://example.com/assets/images/featured/2024/12/Smartphone-Series-A1.webp
+https://example.com/content/media/uploads/2023/07/tablet-pro-model.png?version=1.4
+https://example.com/files/styles/720x480/public/2025-03/Wireless-Earbuds-X2.jpg
+https://example.com/media/gallery/2022/11/Smart-TV-55inch-4K.png?itok=9f8gY2w
+https://example.com/uploads/images/catalog/2023/05/laptop-gamer-z100.webp
+https://example.com/storage/public/images/2024-09/Bluetooth-Speaker-Mini.jpg
+https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=homepage
+"
+            ></textarea>
+
+            <!-- Character count -->
+            <div class="flex justify-end mt-1">
+              <span id="char-count" class="text-xs text-gray-500"
+                >0 characters, 0 URLs</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+          <!-- HTML Download Button -->
+          <button
+            id="download-html"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+          >
+            <i id="html-icon" class="h-5 w-5"></i>
+            <span>Generate HTML Report</span>
+          </button>
+
+          <!-- CSV Download Button -->
+          <button
+            id="download-csv"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+          >
+            <i id="csv-icon" class="h-5 w-5"></i>
+            <span>Generate CSV Report</span>
+          </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div id="progress-container" class="hidden mb-4">
+          <div class="flex justify-between mb-1">
+            <span id="progress-text" class="text-sm font-medium text-gray-700"
+              >Processing images...</span
+            >
+            <span
+              id="progress-percent"
+              class="text-sm font-medium text-gray-700"
+              >0%</span
+            >
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              id="progress-bar"
+              class="h-2.5 rounded-full"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Results preview -->
+        <div id="results-preview" class="hidden table-container">
+          <h3
+            class="text-lg font-semibold text-gray-800 mb-3 flex items-center"
+          >
+            <i id="results-icon" class="h-5 w-5 mr-2 text-orange-500"></i>
+            Analysis Results Preview
+          </h3>
+          <div
+            id="stats-container"
+            class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"
+          ></div>
+          <div class="overflow-x-auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Preview</th>
+                  <th>Filename</th>
+                  <th>Size (KB)</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody
+                id="results-table"
+                class="divide-y divide-gray-200"
+              ></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Help Section with tips -->
+        <div class="bg-gray-100 rounded-xl p-6 shadow-md mt-2">
+          <h3
+            class="text-lg font-semibold text-gray-800 mb-3 flex items-center"
+          >
+            <i id="tip-icon" class="h-5 w-5 mr-2 text-orange-500"></i>
+            How to Use This Tool
+          </h3>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-start">
+              <span
+                class="bg-orange-100 text-orange-800 p-1 rounded-full mr-2 flex-shrink-0 mt-0.5"
+              >
+                <i id="check-icon-1" class="h-3 w-3"></i>
+              </span>
+              Paste image URLs (one per line) in the text area above
+            </li>
+            <li class="flex items-start">
+              <span
+                class="bg-orange-100 text-orange-800 p-1 rounded-full mr-2 flex-shrink-0 mt-0.5"
+              >
+                <i id="check-icon-2" class="h-3 w-3"></i>
+              </span>
+              Click "Generate HTML Report" for a detailed visual report
+            </li>
+            <li class="flex items-start">
+              <span
+                class="bg-orange-100 text-orange-800 p-1 rounded-full mr-2 flex-shrink-0 mt-0.5"
+              >
+                <i id="check-icon-3" class="h-3 w-3"></i>
+              </span>
+              Click "Generate CSV Report" for spreadsheet-compatible data
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer - Enhanced with gradient and better spacing -->
+    <footer
+      class="py-8 bg-gradient-to-b from-gray-800 to-gray-900 text-gray-400 border-t border-gray-700"
+    >
+      <div class="max-w-6xl mx-auto px-4">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"
+        >
+          <div class="flex items-center space-x-2">
+            <div class="bg-orange-500 p-1.5 rounded-md relative">
+              <i id="footer-nut-icon" class="h-4 w-4 text-white"></i>
+            </div>
+            <span class="text-xl font-bold">
+              <span class="text-orange-500"
+                >O<span class="text-white">Tools</span></span
+              >
+            </span>
+          </div>
+
+          <p class="text-sm">&copy; 2025 ORANGE. All rights reserved.</p>
+
+          <div class="flex space-x-4 items-center"></div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Add nut icon to header
+        const headerNutIcon = document.getElementById("header-nut-icon");
+        if (headerNutIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      `;
+          headerNutIcon.appendChild(iconElement);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Add nut icon to footer
+        const footerNutIcon = document.getElementById("footer-nut-icon");
+        if (footerNutIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      `;
+          footerNutIcon.appendChild(iconElement);
+        }
+      });
+
+      // Helper function to get icon SVG
+      function getIconSVG(iconName) {
+        const icons = {
+          bolt: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+          "file-text":
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>',
+          "file-code":
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m10 13-2 2 2 2"/><path d="m14 17 2-2-2-2"/></svg>',
+          database:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+          check:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+          lightbulb:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+          image:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+          "bar-chart":
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>',
+        };
+
+        return icons[iconName] || "";
+      }
+
+      // Initialize icons when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Header and footer icons
+        const headerBoltIcon = document.getElementById("header-bolt-icon");
+        if (headerBoltIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("bolt");
+          headerBoltIcon.appendChild(iconElement);
+        }
+
+        const footerBoltIcon = document.getElementById("footer-bolt-icon");
+        if (footerBoltIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("bolt");
+          footerBoltIcon.appendChild(iconElement);
+        }
+
+        // Data input icon
+        const dataIcon = document.getElementById("data-icon");
+        if (dataIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("image");
+          dataIcon.appendChild(iconElement);
+        }
+
+        // Download button icons
+        const htmlIcon = document.getElementById("html-icon");
+        if (htmlIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("file-code");
+          htmlIcon.appendChild(iconElement);
+        }
+
+        const csvIcon = document.getElementById("csv-icon");
+        if (csvIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("file-text");
+          csvIcon.appendChild(iconElement);
+        }
+
+        // Tips icon
+        const tipIcon = document.getElementById("tip-icon");
+        if (tipIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("lightbulb");
+          tipIcon.appendChild(iconElement);
+        }
+
+        // Results icon
+        const resultsIcon = document.getElementById("results-icon");
+        if (resultsIcon) {
+          const iconElement = document.createElement("span");
+          iconElement.innerHTML = getIconSVG("bar-chart");
+          resultsIcon.appendChild(iconElement);
+        }
+
+        // Check icons
+        for (let i = 1; i <= 3; i++) {
+          const checkIcon = document.getElementById(`check-icon-${i}`);
+          if (checkIcon) {
+            const iconElement = document.createElement("span");
+            iconElement.innerHTML = getIconSVG("check");
+            checkIcon.appendChild(iconElement);
+          }
+        }
+
+        // Set up character counter
+        const dataInput = document.getElementById("data-input");
+        const charCount = document.getElementById("char-count");
+
+        dataInput.addEventListener("input", function () {
+          const count = this.value.length;
+          const urls = this.value
+            .split("\n")
+            .filter((url) => url.trim() !== "");
+          charCount.textContent = `${count} characters, ${urls.length} URLs`;
+        });
+
+        // Set up download functionality
+        const downloadHTML = document.getElementById("download-html");
+        const downloadCSV = document.getElementById("download-csv");
+        const progressContainer = document.getElementById("progress-container");
+        const progressBar = document.getElementById("progress-bar");
+        const progressText = document.getElementById("progress-text");
+        const progressPercent = document.getElementById("progress-percent");
+        const resultsPreview = document.getElementById("results-preview");
+        const statsContainer = document.getElementById("stats-container");
+        const resultsTable = document.getElementById("results-table");
+
+        // Function to extract domain from URL
+        function getWebsiteName(url) {
+          try {
+            const domain = new URL(url).hostname.replace("www.", "");
+            return domain.split(".")[0]; // Get the main part (e.g., "orange" from "orange.jo")
+          } catch {
+            return "website";
+          }
+        }
+
+        // Function to check if URL should be ignored
+        function shouldIgnoreUrl(url) {
+          const ignoredDomains = [
+            "facebook.com",
+            "google.com",
+            "fbcdn.net",
+            "googleusercontent.com",
+          ];
+          try {
+            const domain = new URL(url).hostname;
+            return ignoredDomains.some((d) => domain.includes(d));
+          } catch {
+            return false;
+          }
+        }
+
+        // Function to get image size from URL
+        async function getImageSize(url) {
+          try {
+            const response = await fetch(
+              "https://otools-server.onrender.com/api/analyze-images",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ urls: [url] }),
+              }
+            );
+
+            if (!response.ok) throw new Error("Failed to fetch image size");
+
+            const data = await response.json();
+            const result = data.results[0];
+
+            if (!result.success)
+              throw new Error(result.error || "Unknown error");
+
+            const bytes = result.sizeBytes;
+            const kb = (bytes / 1024).toFixed(2);
+            const mb = (bytes / (1024 * 1024)).toFixed(2);
+
+            return {
+              bytes: bytes,
+              kb: kb,
+              mb: mb,
+              success: true,
+            };
+          } catch (error) {
+            console.error(`Error getting size for ${url}:`, error);
+            return {
+              bytes: 0,
+              kb: 0,
+              mb: 0,
+              success: false,
+            };
+          }
+        }
+
+        // Function to get image type from URL
+        function getImageType(url) {
+          const extension = url.split(".").pop().toLowerCase().split("?")[0];
+          switch (extension) {
+            case "jpg":
+            case "jpeg":
+              return "JPEG";
+            case "png":
+              return "PNG";
+            case "gif":
+              return "GIF";
+            case "webp":
+              return "WebP";
+            case "svg":
+              return "SVG";
+            case "ico":
+              return "Icon";
+            default:
+              return "Unknown";
+          }
+        }
+
+        // Function to get filename from URL
+        function getFilename(url) {
+          const path = url.split("?")[0]; // Remove query parameters
+          return path.split("/").pop() || "Unnamed";
+        }
+
+        // Function to analyze all images
+        async function analyzeImages(urls) {
+          const results = [];
+          let totalSizeBytes = 0;
+          let successful = 0;
+          let websiteName = "website";
+
+          progressContainer.classList.remove("hidden");
+          resultsPreview.classList.add("hidden");
+
+          // Filter out ignored URLs and get website name from first valid URL
+          const validUrls = urls.filter((url) => {
+            if (shouldIgnoreUrl(url)) return false;
+            if (websiteName === "website") {
+              websiteName = getWebsiteName(url);
+            }
+            return true;
+          });
+
+          if (validUrls.length === 0) {
+            throw new Error(
+              "No valid image URLs found (Facebook/Google URLs are ignored)"
+            );
+          }
+
+          for (let i = 0; i < validUrls.length; i++) {
+            const url = validUrls[i];
+            const progress = Math.floor(((i + 1) / validUrls.length) * 100);
+
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${progress}%`;
+            progressText.textContent = `Processing image ${i + 1} of ${
+              validUrls.length
+            }...`;
+
+            const filename = getFilename(url);
+            const type = getImageType(url);
+            const sizeInfo = await getImageSize(url);
+
+            if (sizeInfo.success) {
+              totalSizeBytes += sizeInfo.bytes;
+              successful++;
+            }
+
+            results.push({
+              url: url,
+              filename: filename,
+              type: type,
+              sizeBytes: sizeInfo.bytes,
+              sizeKB: sizeInfo.kb,
+              sizeMB: sizeInfo.mb,
+              success: sizeInfo.success,
+            });
+          }
+
+          // Calculate statistics
+          const typeStats = {};
+          results.forEach((item) => {
+            typeStats[item.type] = (typeStats[item.type] || 0) + 1;
+          });
+
+          const totalSizeKB = (totalSizeBytes / 1024).toFixed(2);
+          const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+
+          return {
+            results: results,
+            stats: {
+              totalImages: validUrls.length,
+              successful: successful,
+              failed: validUrls.length - successful,
+              totalSizeBytes: totalSizeBytes,
+              totalSizeKB: totalSizeKB,
+              totalSizeMB: totalSizeMB,
+              typeStats: typeStats,
+              websiteName: websiteName,
+            },
+          };
+        }
+
+        // Function to show results preview
+        function showResultsPreview(analysis) {
+          const { results, stats } = analysis;
+
+          // Update stats container
+          statsContainer.innerHTML = `
+            <div class="bg-white p-4 rounded-lg shadow">
+              <div class="text-sm text-gray-500">Total Images</div>
+              <div class="text-2xl font-bold text-orange-600">${stats.totalImages}</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+              <div class="text-sm text-gray-500">Successful</div>
+              <div class="text-2xl font-bold text-green-600">${stats.successful}</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+              <div class="text-sm text-gray-500">Total Size</div>
+              <div class="text-2xl font-bold text-blue-600">${stats.totalSizeMB} MB</div>
+            </div>
+          `;
+
+          // Update results table
+          resultsTable.innerHTML = "";
+          results.slice(0, 10).forEach((item, index) => {
+            const row = document.createElement("tr");
+            row.className = item.success ? "" : "bg-red-50";
+
+            row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>
+                ${
+                  item.success
+                    ? `<img src="${item.url}" class="image-preview" alt="Preview" onerror="this.parentNode.innerHTML='Failed to load'">`
+                    : "Failed to load"
+                }
+              </td>
+              <td>${item.filename}</td>
+              <td>${item.success ? item.sizeKB : "N/A"}</td>
+              <td>${item.type}</td>
+              <td>${item.success ? "Success" : "Failed"}</td>
+            `;
+
+            resultsTable.appendChild(row);
+          });
+
+          // Show the preview
+          resultsPreview.classList.remove("hidden");
+        }
+
+        // Function to generate HTML report (similar to PS1 HTML format)
+        function generateHTMLReport(analysis) {
+          const { results, stats } = analysis;
+          const currentDate = new Date().toLocaleString();
+
+          // Sort results by size (descending)
+          const sortedResults = [...results].sort(
+            (a, b) => b.sizeBytes - a.sizeBytes
+          );
+
+          // Extract website URL from the first image URL
+          let websiteUrl = "#";
+          if (sortedResults.length > 0 && sortedResults[0].url) {
+            try {
+              const urlObj = new URL(sortedResults[0].url);
+              websiteUrl = `${urlObj.protocol}//${urlObj.hostname}`;
+            } catch (e) {
+              console.error("Error parsing website URL:", e);
+            }
+          }
+
+          // Create HTML content
+          let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${stats.websiteName} Images Analysis Report</title>
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    
+    /* Header Section */
+    .report-header {
+      background: linear-gradient(135deg, #2b6cb0, #4299e1);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .report-header::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+    
+    .report-header h1 {
+      color: white;
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.5);
+      padding-bottom: 10px;
+      display: inline-block;
+    }
+    
+    .report-header p {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .report-header strong {
+      opacity: 1;
+    }
+    
+    .website-link {
+      color: #fff;
+      text-decoration: underline;
+    }
+    
+    /* Statistics Section */
+    .stats-container {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-title {
+      font-size: 1.8rem;
+      color: #2d3748;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    .stats-title::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 4px;
+      background: #4299e1;
+      margin-top: 8px;
+    }
+    
+    .summary-items {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+      gap: 20px;
+    }
+    
+    .summary-item {
+      flex: 1;
+      min-width: 250px;
+      padding: 15px;
+      background-color: #f7fafc;
+      border-radius: 8px;
+      border-left: 4px solid #2b6cb0;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .summary-item:hover {
+      transform: translateY(-3px);
+    }
+    
+    .summary-item strong {
+      display: block;
+      font-size: 2rem;
+      color: #2b6cb0;
+      margin-bottom: 5px;
+    }
+    
+    .summary-item span {
+      color: #2d3748;
+      font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .stats-item {
+      background-color: #f7fafc;
+      padding: 15px;
+      border-radius: 8px;
+      min-width: 180px;
+      flex-grow: 1;
+      text-align: center;
+      border-bottom: 3px solid #4299e1;
+      transition: transform 0.3s ease;
+    }
+    
+    .stats-item:hover {
+      transform: translateY(-3px);
+    }
+    
+    .stats-item strong {
+      display: block;
+      font-size: 1.5rem;
+      color: #2b6cb0;
+    }
+    
+    .stats-item span {
+      font-size: 0.9rem;
+      color: #2d3748;
+    }
+    
+    /* Table Section */
+    .table-container {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+    
+    .table-title {
+      font-size: 1.8rem;
+      color: #2d3748;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    .table-title::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 4px;
+      background: #4299e1;
+      margin-top: 8px;
+    }
+    
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    th {
+      background-color: #2b6cb0;
+      color: white;
+      font-weight: 600;
+      padding: 12px 15px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      transition: background-color 0.3s ease;
+    }
+    
+    th:hover {
+      background-color: #3182ce;
+    }
+    
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      vertical-align: middle;
+      transition: background-color 0.3s ease;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    tr:hover td {
+      background-color: #ebf8ff;
+    }
+    
+    .image-preview {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .image-preview:hover {
+      transform: scale(1.5);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    
+    .url-cell {
+      max-width: 450px;
+      word-break: break-all;
+      font-size: 0.9rem;
+    }
+    
+    .url-link {
+      color: #2b6cb0;
+      text-decoration: none;
+    }
+    
+    .url-link:hover {
+      text-decoration: underline;
+    }
+    
+    .filename-cell {
+      max-width: 200px;
+      word-break: break-all;
+    }
+    
+    /* Footer */
+    .footer {
+      font-size: 0.9rem;
+      color: #6c757d;
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    /* Responsive Design */
+    @media only screen and (max-width: 768px) {
+      .summary-items {
+        flex-direction: column;
+      }
+      
+      .summary-item {
+        min-width: 100%;
+      }
+      
+      .table-container {
+        padding: 15px 10px;
+      }
+      
+      th, td {
+        padding: 10px;
+      }
+      
+      .report-header {
+        padding: 20px;
+      }
+      
+      .image-preview {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header Section -->
+    <div class="report-header fade-in">
+      <h1>${stats.websiteName} Images Analysis Report</h1>
+      <p><strong>Website:</strong> <a href="${websiteUrl}" class="website-link" target="_blank">${
+            stats.websiteName
+          }</a></p>
+      <p><strong>Date Generated:</strong> ${currentDate}</p>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-container fade-in">
+      <h2 class="stats-title">Image Statistics</h2>
+      <div class="summary-items">
+        <div class="summary-item">
+          <strong>${stats.totalImages}</strong>
+          <span>Images Found</span>
+        </div>
+        <div class="summary-item">
+          <strong>${stats.totalSizeMB}</strong>
+          <span>Total Size (MB)</span>
+        </div>
+        <div class="summary-item">
+          <strong>${stats.totalSizeKB}</strong>
+          <span>Total Size (KB)</span>
+        </div>
+      </div>
+
+      <div class="stats-title">Distribution by Image Format</div>
+      <div class="stats-grid">
+        ${Object.entries(stats.typeStats)
+          .map(([type, count]) => {
+            const percentage = ((count / stats.totalImages) * 100).toFixed(1);
+            return `
+            <div class="stats-item">
+              <strong>${count}</strong>
+              <span>${type} (${percentage}%)</span>
+            </div>
+            `;
+          })
+          .join("")}
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container fade-in">
+      <h2 class="table-title">Image Details</h2>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Preview</th>
+            <th>Filename</th>
+            <th>Type</th>
+            <th>Size (MB)</th>
+            <th>Size (KB)</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortedResults
+            .map(
+              (item, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>
+              ${
+                item.success
+                  ? `<img src="${item.url}" class="image-preview" alt="Preview" onerror="this.style.display='none'">`
+                  : '<span style="color: #e53e3e;">Failed</span>'
+              }
+            </td>
+            <td class="filename-cell">${item.filename}</td>
+            <td>${item.type}</td>
+            <td>${item.success ? item.sizeMB : "N/A"}</td>
+            <td>${item.success ? item.sizeKB : "N/A"}</td>
+            <td class="url-cell"><a href="${
+              item.url
+            }" class="url-link" target="_blank">${item.url}</a></td>
+          </tr>
+          `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Generated by OTools - Images Analyzer</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+          return htmlContent;
+        }
+
+        // Function to generate CSV report (similar to PS1 CSV format)
+        function generateCSVReport(analysis) {
+          const { results, stats } = analysis;
+          const currentDate = new Date().toLocaleString();
+
+          // Create CSV content with table-like formatting
+          let csvContent = `Website: ${stats.websiteName}\n`;
+          csvContent += `Date: ${currentDate}\n`;
+          csvContent += `Total Images: ${stats.totalImages}\n`;
+          csvContent += `Total Size: ${stats.totalSizeMB} MB (${stats.totalSizeKB} KB)\n\n`;
+
+          csvContent += `=== Image Format Statistics ===\n`;
+          Object.entries(stats.typeStats).forEach(([type, count]) => {
+            const percentage = ((count / stats.totalImages) * 100).toFixed(1);
+            csvContent += `${type}: ${count} (${percentage}%)\n`;
+          });
+
+          csvContent += `\n`;
+
+          // Find the longest URL for formatting
+          const maxUrlLength = Math.max(
+            ...results.map((item) => item.url.length),
+            80
+          );
+          const urlColumnWidth = Math.min(maxUrlLength, 150);
+          const mbColumnWidth = 12;
+          const kbColumnWidth = 14;
+          const typeColumnWidth = 10;
+
+          // Create table header separators
+          const separator =
+            "+" +
+            "-".repeat(urlColumnWidth + 2) +
+            "+" +
+            "-".repeat(mbColumnWidth + 2) +
+            "+" +
+            "-".repeat(kbColumnWidth + 2) +
+            "+" +
+            "-".repeat(typeColumnWidth + 2) +
+            "+\n";
+
+          csvContent += separator;
+
+          // Add column headers
+          csvContent +=
+            `| ${"Image Path".padEnd(urlColumnWidth)} | ` +
+            `${"Size (MB)".padEnd(mbColumnWidth)} | ` +
+            `${"Size (KB)".padEnd(kbColumnWidth)} | ` +
+            `${"Format".padEnd(typeColumnWidth)} |\n`;
+
+          csvContent += separator;
+
+          // Add data rows
+          results.forEach((item) => {
+            csvContent +=
+              `| ${item.url.padEnd(urlColumnWidth)} | ` +
+              `${(item.success ? item.sizeMB : "N/A")
+                .toString()
+                .padEnd(mbColumnWidth)} | ` +
+              `${(item.success ? item.sizeKB : "N/A")
+                .toString()
+                .padEnd(kbColumnWidth)} | ` +
+              `${item.type.padEnd(typeColumnWidth)} |\n`;
+
+            csvContent += separator;
+          });
+
+          return csvContent;
+        }
+
+        // Function to download file
+        function downloadFile(filename, content, contentType) {
+          const blob = new Blob([content], { type: contentType });
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
+
+        // Set up event listeners for download buttons
+        downloadHTML.addEventListener("click", async function () {
+          const urls = dataInput.value
+            .split("\n")
+            .filter((url) => url.trim() !== "");
+          if (urls.length === 0) {
+            alert("Please enter at least one image URL!");
+            return;
+          }
+
+          // Set progress bar color for HTML
+          progressBar.className =
+            "h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600";
+
+          try {
+            const analysis = await analyzeImages(urls);
+            showResultsPreview(analysis);
+
+            const htmlReport = generateHTMLReport(analysis);
+            const filename = `${analysis.stats.websiteName}-images-analyze-${
+              new Date().toISOString().split("T")[0]
+            }.html`;
+            downloadFile(filename, htmlReport, "text/html");
+          } catch (error) {
+            console.error("Error generating HTML report:", error);
+            alert(
+              error.message ||
+                "An error occurred while generating the report. Please check the console for details."
+            );
+          } finally {
+            progressContainer.classList.add("hidden");
+          }
+        });
+
+        downloadCSV.addEventListener("click", async function () {
+          const urls = dataInput.value
+            .split("\n")
+            .filter((url) => url.trim() !== "");
+          if (urls.length === 0) {
+            alert("Please enter at least one image URL!");
+            return;
+          }
+
+          // Set progress bar color for CSV
+          progressBar.className =
+            "h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600";
+
+          try {
+            const analysis = await analyzeImages(urls);
+            showResultsPreview(analysis);
+
+            const csvReport = generateCSVReport(analysis);
+            const filename = `${analysis.stats.websiteName}-images-analyze-${
+              new Date().toISOString().split("T")[0]
+            }.csv`;
+            downloadFile(filename, csvReport, "text/csv");
+          } catch (error) {
+            console.error("Error generating CSV report:", error);
+            alert(
+              error.message ||
+                "An error occurred while generating the report. Please check the console for details."
+            );
+          } finally {
+            progressContainer.classList.add("hidden");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
