@@ -14,9 +14,7 @@
         background-image: radial-gradient(#f0f0f0 1px, transparent 1px);
         background-size: 16px 16px;
       }
-      .bg-noise {
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-      }
+
       .animate-pulse {
         animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
@@ -104,6 +102,8 @@
         text-align: left;
         padding: 12px 15px;
         border-bottom: 1px solid #e2e8f0;
+        height: 65px; /* Fixed height for uniform rows */
+        vertical-align: middle;
       }
 
       th {
@@ -112,6 +112,7 @@
         position: sticky;
         top: 0;
         font-weight: 600;
+        height: auto; /* Allow header natural height */
       }
 
       tr:nth-child(even) {
@@ -122,40 +123,62 @@
         background-color: #ebf8ff;
         transition: all 0.3s ease;
       }
+
+      /* Tab styling */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .tab-button {
+        transition: all 0.3s ease;
+      }
+
+      .tab-button.active {
+        background: linear-gradient(135deg, #f97316, #dc2626);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+      }
     </style>
   </head>
   <body class="min-h-screen bg-gray-50 text-gray-800">
-    <!-- Header - Dark Gray with gradient accent -->
+    <!-- Header -->
     <header class="sticky top-0 z-50 bg-gray-900 shadow-lg">
       <div class="max-w-6xl mx-auto px-4">
         <div class="flex items-center justify-between py-4">
           <div
             class="flex items-center space-x-2 transition duration-300 hover:scale-105"
           >
-            <div
-              class="bg-gradient-to-br from-orange-500 to-red-600 p-2 rounded-[3px] relative overflow-hidden shadow-lg"
+            <a
+              href="index.html"
+              class="flex items-center space-x-2 text-decoration-none"
             >
-              <!-- Orange glow effect -->
               <div
-                class="absolute inset-0 bg-orange-400 rounded-full blur-md opacity-60 scale-75 animate-pulse"
-              ></div>
-              <!-- Nut icon above the white line -->
-              <i
-                id="header-nut-icon"
-                class="h-5 w-5 text-white relative z-10 pb-0.5"
-              ></i>
-              <!-- White line in bottom center of square -->
-              <div
-                class="w-4/5 h-1 bg-white absolute bottom-1 left-0 ml-1 rounded-[1px]"
-              ></div>
-            </div>
-            <span class="text-2xl font-bold">
-              <span
-                class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500"
+                class="bg-gradient-to-br from-orange-500 to-red-600 p-2 rounded-[3px] relative overflow-hidden shadow-lg"
               >
-                O<span class="text-white">Tools</span>
+                <div
+                  class="absolute inset-0 bg-orange-400 rounded-full blur-md opacity-60 scale-75 animate-pulse"
+                ></div>
+                <i
+                  id="header-nut-icon"
+                  class="h-5 w-5 text-white relative z-10 pb-0.5"
+                ></i>
+                <div
+                  class="w-4/5 h-1 bg-white absolute bottom-1 left-0 ml-1 rounded-[1px]"
+                ></div>
+              </div>
+              <span class="text-2xl font-bold">
+                <span
+                  class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500"
+                >
+                  O<span class="text-white">Tools</span>
+                </span>
               </span>
-            </span>
+            </a>
           </div>
           <nav class="hidden md:flex space-x-6 items-center">
             <a
@@ -165,15 +188,13 @@
             >
             <span
               class="text-gray-400 hover:text-gray-300 cursor-not-allowed relative group"
+              >Team</span
             >
-              Team
-            </span>
             <div class="h-5 w-px bg-gray-600"></div>
             <span
               class="text-gray-400 hover:text-gray-300 cursor-not-allowed relative group"
+              >Contact</span
             >
-              Contact
-            </span>
           </nav>
         </div>
       </div>
@@ -192,33 +213,240 @@
       <div class="max-w-5xl mx-auto px-4 relative z-10">
         <!-- Page Title -->
         <div class="mb-8 text-center">
-          <h1 class="text-3xl font-bold text-gray-800">Image URL Analyzer</h1>
+          <h1 class="text-3xl font-bold text-gray-800">Image Analyzer</h1>
           <p class="text-gray-600 mt-2">
-            Analyze image URLs and generate detailed reports
+            Extract and analyze images from websites or analyze specific image
+            URLs
           </p>
         </div>
 
-        <!-- Data Input Section -->
+        <!-- Analysis Mode Tabs -->
         <div class="mb-8">
-          <div class="relative">
-            <!-- Input label with icon -->
-            <div class="flex items-center mb-3 space-x-2">
-              <div class="bg-gray-800 p-1.5 rounded-md">
-                <i id="data-icon" class="h-4 w-4 text-white"></i>
-              </div>
-              <label
-                for="data-input"
-                class="text-lg font-semibold text-gray-700"
-                >Enter Image URLs (one per line)</label
+          <div class="flex justify-center space-x-4 mb-6">
+            <button
+              id="tab-url"
+              class="tab-button active px-6 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              🌐 Website URL Analysis
+            </button>
+            <button
+              id="tab-urls"
+              class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              📋 Image URLs Analysis
+            </button>
+          </div>
+
+          <!-- Website URL Analysis Tab -->
+          <div id="content-url" class="tab-content active">
+            <div
+              class="bg-blue-50 rounded-xl p-6 mb-6 border-l-4 border-blue-500"
+            >
+              <h3
+                class="text-lg font-semibold text-blue-800 mb-2 flex items-center"
               >
+                <i id="globe-icon" class="h-5 w-5 mr-2"></i>
+                Website URL Analysis
+              </h3>
+              <p class="text-blue-700">
+                Enter a website URL to automatically extract and analyze all
+                images from the site. The tool will crawl the website, discover
+                images through multiple methods, and generate a comprehensive
+                report with optimized settings for faster analysis.
+              </p>
             </div>
 
-            <!-- Textarea with enhanced styling -->
-            <textarea
-              id="data-input"
-              rows="12"
-              class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all duration-300 shadow-inner bg-white bg-opacity-80 font-mono text-sm"
-              placeholder="Paste image URLs here, one per line...
+            <div class="relative">
+              <div class="flex items-center mb-3 space-x-2">
+                <div class="bg-blue-600 p-1.5 rounded-md">
+                  <i id="url-icon" class="h-4 w-4 text-white"></i>
+                </div>
+                <label
+                  for="website-url"
+                  class="text-lg font-semibold text-gray-700"
+                  >Website URL</label
+                >
+              </div>
+
+              <input
+                type="url"
+                id="website-url"
+                class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-300 shadow-inner bg-white bg-opacity-80 text-lg"
+                placeholder="https://example.com"
+              />
+
+              <!-- Advanced Options -->
+              <div class="mt-4">
+                <button
+                  id="advanced-options-toggle"
+                  class="flex items-center justify-between w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 text-left"
+                >
+                  <span class="font-semibold text-gray-700"
+                    >Advanced Options</span
+                  >
+                  <svg
+                    id="advanced-options-icon"
+                    class="w-5 h-5 text-gray-500 transform transition-transform duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+
+                <div
+                  id="advanced-options-content"
+                  class="hidden mt-3 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500"
+                >
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-600 mb-1"
+                        >Scroll Iterations</label
+                      >
+                      <input
+                        type="number"
+                        id="scroll-iterations"
+                        value="3"
+                        min="1"
+                        max="50"
+                        class="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-600 mb-1"
+                        >Scroll Delay (ms)</label
+                      >
+                      <input
+                        type="number"
+                        id="scroll-delay"
+                        value="2000"
+                        min="500"
+                        max="10000"
+                        step="500"
+                        class="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-600 mb-1"
+                        >Page Load Wait (s)</label
+                      >
+                      <input
+                        type="number"
+                        id="page-load-wait"
+                        value="5"
+                        min="3"
+                        max="60"
+                        class="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Highlight Options -->
+              <div class="mt-4">
+                <button
+                  id="highlight-options-toggle-url"
+                  class="flex items-center justify-between w-full p-3 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors duration-200 text-left"
+                >
+                  <span class="font-semibold text-blue-800"
+                    >Highlight Options</span
+                  >
+                  <svg
+                    id="highlight-options-icon-url"
+                    class="w-5 h-5 text-blue-600 transform transition-transform duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+
+                <div
+                  id="highlight-options-content-url"
+                  class="hidden mt-3 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500"
+                >
+                  <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                      <label
+                        class="block text-sm font-medium text-blue-800 mb-1"
+                        >Highlight images larger than (KB)</label
+                      >
+                      <input
+                        type="number"
+                        id="highlight-size-url"
+                        placeholder="e.g., 500"
+                        min="0"
+                        step="1"
+                        class="w-full p-2 border border-blue-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-200 bg-white"
+                      />
+                    </div>
+                    <div class="flex items-end">
+                      <div class="text-sm text-blue-700">
+                        <p class="mb-1">💡 <strong>Tip:</strong></p>
+                        <p>Leave empty for no highlighting</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image URLs Analysis Tab -->
+          <div id="content-urls" class="tab-content">
+            <div
+              class="bg-orange-50 rounded-xl p-6 mb-6 border-l-4 border-orange-500"
+            >
+              <h3
+                class="text-lg font-semibold text-orange-800 mb-2 flex items-center"
+              >
+                <i id="list-icon" class="h-5 w-5 mr-2"></i>
+                Image URLs Analysis
+              </h3>
+              <p class="text-orange-700 mb-2">
+                Paste specific image URLs (one per line) to analyze their
+                properties including file sizes, formats, and generate detailed
+                reports.
+              </p>
+              <p class="text-sm text-orange-600">
+                <strong>Limit:</strong> Maximum 1000 URLs per analysis for
+                optimal performance.
+              </p>
+            </div>
+
+            <div class="relative">
+              <div class="flex items-center mb-3 space-x-2">
+                <div class="bg-orange-600 p-1.5 rounded-md">
+                  <i id="data-icon" class="h-4 w-4 text-white"></i>
+                </div>
+                <label
+                  for="data-input"
+                  class="text-lg font-semibold text-gray-700"
+                  >Enter Image URLs (one per line)</label
+                >
+              </div>
+
+              <textarea
+                id="data-input"
+                rows="12"
+                class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all duration-300 shadow-inner bg-white bg-opacity-80 font-mono text-sm"
+                placeholder="Paste image URLs here, one per line...
 Example:
 https://example.com/assets/images/featured/2024/12/Smartphone-Series-A1.webp
 https://example.com/content/media/uploads/2023/07/tablet-pro-model.png?version=1.4
@@ -226,15 +454,69 @@ https://example.com/files/styles/720x480/public/2025-03/Wireless-Earbuds-X2.jpg
 https://example.com/media/gallery/2022/11/Smart-TV-55inch-4K.png?itok=9f8gY2w
 https://example.com/uploads/images/catalog/2023/05/laptop-gamer-z100.webp
 https://example.com/storage/public/images/2024-09/Bluetooth-Speaker-Mini.jpg
-https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=homepage
-"
-            ></textarea>
+https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=homepage"
+              ></textarea>
 
-            <!-- Character count -->
-            <div class="flex justify-end mt-1">
-              <span id="char-count" class="text-xs text-gray-500"
-                >0 characters, 0 URLs</span
+              <!-- Character count -->
+              <div class="flex justify-end mt-1">
+                <span id="char-count" class="text-xs text-gray-500"
+                  >0 characters, 0 URLs</span
+                >
+              </div>
+            </div>
+
+            <!-- Highlight Options for Image URLs Analysis -->
+            <div class="mt-4">
+              <button
+                id="highlight-options-toggle-urls"
+                class="flex items-center justify-between w-full p-3 bg-yellow-100 hover:bg-yellow-200 rounded-lg transition-colors duration-200 text-left"
               >
+                <span class="font-semibold text-yellow-800"
+                  >Highlight Options</span
+                >
+                <svg
+                  id="highlight-options-icon-urls"
+                  class="w-5 h-5 text-yellow-600 transform transition-transform duration-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </button>
+
+              <div
+                id="highlight-options-content-urls"
+                class="hidden mt-3 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500"
+              >
+                <div class="flex items-center space-x-4">
+                  <div class="flex-1">
+                    <label
+                      class="block text-sm font-medium text-yellow-800 mb-1"
+                      >Highlight images larger than (KB)</label
+                    >
+                    <input
+                      type="number"
+                      id="highlight-size-urls"
+                      placeholder="e.g., 500"
+                      min="0"
+                      step="1"
+                      class="w-full p-2 border border-yellow-300 rounded-md focus:border-yellow-500 focus:ring focus:ring-yellow-200 bg-white"
+                    />
+                  </div>
+                  <div class="flex items-end">
+                    <div class="text-sm text-yellow-700">
+                      <p class="mb-1">💡 <strong>Tip:</strong></p>
+                      <p>Leave empty for no highlighting</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -244,7 +526,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           <!-- HTML Download Button -->
           <button
             id="download-html"
-            class="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <i id="html-icon" class="h-5 w-5"></i>
             <span>Generate HTML Report</span>
@@ -253,7 +535,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           <!-- CSV Download Button -->
           <button
             id="download-csv"
-            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <i id="csv-icon" class="h-5 w-5"></i>
             <span>Generate CSV Report</span>
@@ -264,7 +546,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         <div id="progress-container" class="hidden mb-4">
           <div class="flex justify-between mb-1">
             <span id="progress-text" class="text-sm font-medium text-gray-700"
-              >Processing images...</span
+              >Processing...</span
             >
             <span
               id="progress-percent"
@@ -272,12 +554,15 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >0%</span
             >
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
             <div
               id="progress-bar"
-              class="h-2.5 rounded-full"
+              class="h-3 rounded-full transition-all duration-300 ease-out bg-gradient-to-r from-blue-500 to-indigo-600"
               style="width: 0%"
             ></div>
+          </div>
+          <div class="mt-1">
+            <span id="progress-detail" class="text-xs text-gray-500"></span>
           </div>
         </div>
 
@@ -287,7 +572,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             class="text-lg font-semibold text-gray-800 mb-3 flex items-center"
           >
             <i id="results-icon" class="h-5 w-5 mr-2 text-orange-500"></i>
-            Analysis Results Preview
+            Analysis Results
           </h3>
           <div
             id="stats-container"
@@ -302,6 +587,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                   <th>Filename</th>
                   <th>Size (KB)</th>
                   <th>Type</th>
+                  <th>Content Type</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -313,7 +599,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           </div>
         </div>
 
-        <!-- Help Section with tips -->
+        <!-- Help Section -->
         <div class="bg-gray-100 rounded-xl p-6 shadow-md mt-2">
           <h3
             class="text-lg font-semibold text-gray-800 mb-3 flex items-center"
@@ -328,7 +614,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >
                 <i id="check-icon-1" class="h-3 w-3"></i>
               </span>
-              Paste image URLs (one per line) in the text area above
+              <strong>Website URL Analysis:</strong> Enter a website URL to
+              automatically extract all images from the site
             </li>
             <li class="flex items-start">
               <span
@@ -336,7 +623,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >
                 <i id="check-icon-2" class="h-3 w-3"></i>
               </span>
-              Click "Generate HTML Report" for a detailed visual report
+              <strong>Image URLs Analysis:</strong> Paste specific image URLs
+              (one per line) for direct analysis
             </li>
             <li class="flex items-start">
               <span
@@ -344,14 +632,24 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >
                 <i id="check-icon-3" class="h-3 w-3"></i>
               </span>
-              Click "Generate CSV Report" for spreadsheet-compatible data
+              Generate HTML reports for visual analysis or CSV reports for
+              spreadsheet compatibility
+            </li>
+            <li class="flex items-start">
+              <span
+                class="bg-orange-100 text-orange-800 p-1 rounded-full mr-2 flex-shrink-0 mt-0.5"
+              >
+                <i id="check-icon-3" class="h-3 w-3"></i>
+              </span>
+              <strong>Highlight Feature:</strong> Use highlight options to
+              automatically mark images larger than a specified size (in KB)
             </li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- Footer - Enhanced with gradient and better spacing -->
+    <!-- Footer -->
     <footer
       class="py-8 bg-gradient-to-b from-gray-800 to-gray-900 text-gray-400 border-t border-gray-700"
     >
@@ -360,54 +658,27 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"
         >
           <div class="flex items-center space-x-2">
-            <div class="bg-orange-500 p-1.5 rounded-md relative">
-              <i id="footer-nut-icon" class="h-4 w-4 text-white"></i>
-            </div>
-            <span class="text-xl font-bold">
-              <span class="text-orange-500"
-                >O<span class="text-white">Tools</span></span
-              >
-            </span>
+            <a
+              href="index.html"
+              class="flex items-center space-x-2 text-decoration-none"
+            >
+              <div class="bg-orange-500 p-1.5 rounded-md relative">
+                <i id="footer-nut-icon" class="h-4 w-4 text-white"></i>
+              </div>
+              <span class="text-xl font-bold">
+                <span class="text-orange-500"
+                  >O<span class="text-white">Tools</span></span
+                >
+              </span>
+            </a>
           </div>
-
           <p class="text-sm">&copy; 2025 ORANGE. All rights reserved.</p>
-
           <div class="flex space-x-4 items-center"></div>
         </div>
       </div>
     </footer>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Add nut icon to header
-        const headerNutIcon = document.getElementById("header-nut-icon");
-        if (headerNutIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      `;
-          headerNutIcon.appendChild(iconElement);
-        }
-      });
-
-      document.addEventListener("DOMContentLoaded", () => {
-        // Add nut icon to footer
-        const footerNutIcon = document.getElementById("footer-nut-icon");
-        if (footerNutIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      `;
-          footerNutIcon.appendChild(iconElement);
-        }
-      });
-
       // Helper function to get icon SVG
       function getIconSVG(iconName) {
         const icons = {
@@ -426,78 +697,140 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
           "bar-chart":
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>',
+          globe:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+          link: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+          list: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="18" y2="18"/></svg>',
         };
-
         return icons[iconName] || "";
       }
 
+      // Nut icon SVG
+      const nutIconSVG =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>';
+
       // Initialize icons when page loads
       document.addEventListener("DOMContentLoaded", function () {
-        // Header and footer icons
-        const headerBoltIcon = document.getElementById("header-bolt-icon");
-        if (headerBoltIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("bolt");
-          headerBoltIcon.appendChild(iconElement);
-        }
+        // Initialize all icons
+        const iconMappings = {
+          "header-nut-icon": nutIconSVG,
+          "footer-nut-icon": nutIconSVG,
+          "data-icon": getIconSVG("image"),
+          "html-icon": getIconSVG("file-code"),
+          "csv-icon": getIconSVG("file-text"),
+          "tip-icon": getIconSVG("lightbulb"),
+          "results-icon": getIconSVG("bar-chart"),
+          "globe-icon": getIconSVG("globe"),
+          "url-icon": getIconSVG("link"),
+          "list-icon": getIconSVG("list"),
+          "check-icon-1": getIconSVG("check"),
+          "check-icon-2": getIconSVG("check"),
+          "check-icon-3": getIconSVG("check"),
+        };
 
-        const footerBoltIcon = document.getElementById("footer-bolt-icon");
-        if (footerBoltIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("bolt");
-          footerBoltIcon.appendChild(iconElement);
-        }
-
-        // Data input icon
-        const dataIcon = document.getElementById("data-icon");
-        if (dataIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("image");
-          dataIcon.appendChild(iconElement);
-        }
-
-        // Download button icons
-        const htmlIcon = document.getElementById("html-icon");
-        if (htmlIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("file-code");
-          htmlIcon.appendChild(iconElement);
-        }
-
-        const csvIcon = document.getElementById("csv-icon");
-        if (csvIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("file-text");
-          csvIcon.appendChild(iconElement);
-        }
-
-        // Tips icon
-        const tipIcon = document.getElementById("tip-icon");
-        if (tipIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("lightbulb");
-          tipIcon.appendChild(iconElement);
-        }
-
-        // Results icon
-        const resultsIcon = document.getElementById("results-icon");
-        if (resultsIcon) {
-          const iconElement = document.createElement("span");
-          iconElement.innerHTML = getIconSVG("bar-chart");
-          resultsIcon.appendChild(iconElement);
-        }
-
-        // Check icons
-        for (let i = 1; i <= 3; i++) {
-          const checkIcon = document.getElementById(`check-icon-${i}`);
-          if (checkIcon) {
-            const iconElement = document.createElement("span");
-            iconElement.innerHTML = getIconSVG("check");
-            checkIcon.appendChild(iconElement);
+        Object.entries(iconMappings).forEach(([id, svg]) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.innerHTML = svg;
           }
+        });
+
+        // Tab functionality
+        const tabUrl = document.getElementById("tab-url");
+        const tabUrls = document.getElementById("tab-urls");
+        const contentUrl = document.getElementById("content-url");
+        const contentUrls = document.getElementById("content-urls");
+
+        tabUrl.addEventListener("click", () => {
+          tabUrl.classList.add("active");
+          tabUrls.classList.remove("active");
+          contentUrl.classList.add("active");
+          contentUrls.classList.remove("active");
+        });
+
+        tabUrls.addEventListener("click", () => {
+          tabUrls.classList.add("active");
+          tabUrl.classList.remove("active");
+          contentUrls.classList.add("active");
+          contentUrl.classList.remove("active");
+        });
+
+        // Advanced Options dropdown functionality
+        const advancedOptionsToggle = document.getElementById(
+          "advanced-options-toggle"
+        );
+        const advancedOptionsContent = document.getElementById(
+          "advanced-options-content"
+        );
+        const advancedOptionsIcon = document.getElementById(
+          "advanced-options-icon"
+        );
+
+        advancedOptionsToggle.addEventListener("click", () => {
+          const isHidden = advancedOptionsContent.classList.contains("hidden");
+
+          if (isHidden) {
+            advancedOptionsContent.classList.remove("hidden");
+            advancedOptionsIcon.style.transform = "rotate(180deg)";
+          } else {
+            advancedOptionsContent.classList.add("hidden");
+            advancedOptionsIcon.style.transform = "rotate(0deg)";
+          }
+        });
+
+        // Highlight Options dropdown functionality for Website URL Analysis
+        const highlightOptionsToggleUrl = document.getElementById(
+          "highlight-options-toggle-url"
+        );
+        const highlightOptionsContentUrl = document.getElementById(
+          "highlight-options-content-url"
+        );
+        const highlightOptionsIconUrl = document.getElementById(
+          "highlight-options-icon-url"
+        );
+
+        if (highlightOptionsToggleUrl) {
+          highlightOptionsToggleUrl.addEventListener("click", () => {
+            const isHidden =
+              highlightOptionsContentUrl.classList.contains("hidden");
+
+            if (isHidden) {
+              highlightOptionsContentUrl.classList.remove("hidden");
+              highlightOptionsIconUrl.style.transform = "rotate(180deg)";
+            } else {
+              highlightOptionsContentUrl.classList.add("hidden");
+              highlightOptionsIconUrl.style.transform = "rotate(0deg)";
+            }
+          });
         }
 
-        // Set up character counter
+        // Highlight Options dropdown functionality for Image URLs Analysis
+        const highlightOptionsToggleUrls = document.getElementById(
+          "highlight-options-toggle-urls"
+        );
+        const highlightOptionsContentUrls = document.getElementById(
+          "highlight-options-content-urls"
+        );
+        const highlightOptionsIconUrls = document.getElementById(
+          "highlight-options-icon-urls"
+        );
+
+        if (highlightOptionsToggleUrls) {
+          highlightOptionsToggleUrls.addEventListener("click", () => {
+            const isHidden =
+              highlightOptionsContentUrls.classList.contains("hidden");
+
+            if (isHidden) {
+              highlightOptionsContentUrls.classList.remove("hidden");
+              highlightOptionsIconUrls.style.transform = "rotate(180deg)";
+            } else {
+              highlightOptionsContentUrls.classList.add("hidden");
+              highlightOptionsIconUrls.style.transform = "rotate(0deg)";
+            }
+          });
+        }
+
+        // Character counter for textarea
         const dataInput = document.getElementById("data-input");
         const charCount = document.getElementById("char-count");
 
@@ -506,10 +839,28 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           const urls = this.value
             .split("\n")
             .filter((url) => url.trim() !== "");
-          charCount.textContent = `${count} characters, ${urls.length} URLs`;
+
+          let countText = `${count} characters, ${urls.length} URLs`;
+
+          // Add warnings for large inputs
+          if (urls.length > 800) {
+            countText += " ⚠️ Approaching limit (1000 max)";
+            charCount.className = "text-xs text-orange-600 font-medium";
+          } else if (urls.length > 500) {
+            countText += " ⚠️ Large dataset";
+            charCount.className = "text-xs text-yellow-600";
+          } else {
+            charCount.className = "text-xs text-gray-500";
+          }
+
+          charCount.textContent = countText;
         });
 
-        // Set up download functionality
+        // Download functionality
+        setupDownloadFunctionality();
+      });
+
+      function setupDownloadFunctionality() {
         const downloadHTML = document.getElementById("download-html");
         const downloadCSV = document.getElementById("download-csv");
         const progressContainer = document.getElementById("progress-container");
@@ -520,205 +871,447 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         const statsContainer = document.getElementById("stats-container");
         const resultsTable = document.getElementById("results-table");
 
-        // Function to extract domain from URL
+        // Get current analysis mode
+        function getCurrentMode() {
+          return document.getElementById("tab-url").classList.contains("active")
+            ? "url"
+            : "urls";
+        }
+
+        // Get input data based on current mode
+        function getInputData() {
+          const mode = getCurrentMode();
+          if (mode === "url") {
+            const websiteUrl = document
+              .getElementById("website-url")
+              .value.trim();
+            const scrollIterations =
+              parseInt(document.getElementById("scroll-iterations").value) || 3;
+            const scrollDelay =
+              parseInt(document.getElementById("scroll-delay").value) || 2000;
+            const pageLoadWait =
+              parseInt(document.getElementById("page-load-wait").value) || 5;
+            const highlightSize =
+              parseInt(document.getElementById("highlight-size-url").value) ||
+              null;
+
+            return {
+              mode: "url",
+              websiteUrl,
+              options: { scrollIterations, scrollDelay, pageLoadWait },
+              highlightSize,
+            };
+          } else {
+            const imageUrls = document
+              .getElementById("data-input")
+              .value.split("\n")
+              .filter((url) => url.trim() !== "");
+            const highlightSize =
+              parseInt(document.getElementById("highlight-size-urls").value) ||
+              null;
+
+            return {
+              mode: "urls",
+              imageUrls,
+              highlightSize,
+            };
+          }
+        }
+
+        // Validate input data
+        function validateInput(data) {
+          if (data.mode === "url") {
+            if (!data.websiteUrl) {
+              alert("Please enter a website URL!");
+              return false;
+            }
+            if (!data.websiteUrl.match(/^https?:\/\//)) {
+              alert(
+                "Please enter a valid URL (starting with http:// or https://)"
+              );
+              return false;
+            }
+          } else {
+            if (data.imageUrls.length === 0) {
+              alert("Please enter at least one image URL!");
+              return false;
+            }
+            if (data.imageUrls.length > 1000) {
+              alert("Too many URLs! Maximum 1000 URLs allowed per analysis.");
+              return false;
+            }
+
+            // Check approximate payload size
+            const payloadSize = JSON.stringify(data.imageUrls).length;
+            if (payloadSize > 40 * 1024 * 1024) {
+              // 40MB limit
+              alert(
+                "URL list too large! Please reduce the number of URLs or split into smaller batches."
+              );
+              return false;
+            }
+          }
+          return true;
+        }
+
+        // Show progress
+        function showProgress(text, mode = "html") {
+          progressContainer.classList.remove("hidden");
+          resultsPreview.classList.add("hidden");
+          progressText.textContent = text;
+          progressPercent.textContent = "0%";
+          progressBar.style.width = "0%";
+
+          // Set progress bar color based on mode/button
+          if (mode === "csv") {
+            progressBar.className =
+              "h-3 rounded-full transition-all duration-300 ease-out bg-gradient-to-r from-blue-500 to-indigo-600";
+          } else {
+            progressBar.className =
+              "h-3 rounded-full transition-all duration-300 ease-out bg-gradient-to-r from-orange-500 to-red-600";
+          }
+        }
+
+        // Update progress
+        function updateProgress(percent, text, detail = "") {
+          // Ensure percent is between 0 and 100
+          const clampedPercent = Math.max(0, Math.min(100, percent));
+
+          progressBar.style.width = `${clampedPercent}%`;
+          progressPercent.textContent = `${clampedPercent}%`;
+
+          if (text) progressText.textContent = text;
+
+          const progressDetail = document.getElementById("progress-detail");
+          if (progressDetail && detail) {
+            progressDetail.textContent = detail;
+          }
+
+          // Keep the original button color even at 100% completion
+          // Progress bar color is set in showProgress() and maintained throughout
+          if (clampedPercent === 100) {
+            setTimeout(() => {
+              progressText.textContent = "Complete!";
+            }, 300);
+          }
+        }
+
+        // Hide progress
+        function hideProgress() {
+          progressContainer.classList.add("hidden");
+        }
+
+        // Analyze images
+        async function analyzeImages(data, reportMode = "html") {
+          const startTime = Date.now();
+
+          try {
+            showProgress("Starting analysis...", reportMode);
+
+            let analysisResult;
+
+            if (data.mode === "url") {
+              // Website URL analysis
+              updateProgress(
+                10,
+                "Extracting images from website...",
+                "Initializing web scraper..."
+              );
+
+              const extractResponse = await fetch(
+                "http://localhost:3000/api/extract-images",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    url: data.websiteUrl,
+                    options: data.options,
+                  }),
+                }
+              );
+
+              if (!extractResponse.ok) {
+                throw new Error(
+                  `Failed to extract images: ${extractResponse.statusText}`
+                );
+              }
+
+              const extractData = await extractResponse.json();
+
+              if (!extractData.success) {
+                throw new Error(
+                  extractData.error || "Failed to extract images"
+                );
+              }
+
+              updateProgress(
+                50,
+                "Analyzing extracted images...",
+                `Found ${extractData.imageUrls.length} potential image URLs`
+              );
+              data.imageUrls = extractData.imageUrls;
+            }
+
+            // Analyze image URLs
+            updateProgress(
+              70,
+              "Getting image metadata...",
+              "Checking content types and file sizes..."
+            );
+
+            const analyzeResponse = await fetch(
+              "http://localhost:3000/api/analyze-images",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ urls: data.imageUrls }),
+              }
+            );
+
+            if (!analyzeResponse.ok) {
+              const errorText = await analyzeResponse.text();
+              if (analyzeResponse.status === 413) {
+                throw new Error(
+                  "Request too large. Please reduce the number of URLs and try again."
+                );
+              }
+              throw new Error(
+                `Failed to analyze images: ${analyzeResponse.status} - ${errorText}`
+              );
+            }
+
+            const analyzeData = await analyzeResponse.json();
+
+            updateProgress(
+              95,
+              "Processing results...",
+              "Filtering and formatting data..."
+            );
+
+            // Process results - only include successful ones (filtered content types are removed)
+            const results = analyzeData.results.map((item, index) => ({
+              url: item.url,
+              filename: getFilename(item.url),
+              type: getImageType(item.url),
+              contentType: item.contentType || "Unknown",
+              sizeBytes: item.sizeBytes || 0,
+              sizeKB: item.sizeBytes
+                ? (item.sizeBytes / 1024).toFixed(2)
+                : "N/A",
+              sizeMB: item.sizeBytes
+                ? (item.sizeBytes / (1024 * 1024)).toFixed(3)
+                : "N/A",
+              success: item.success,
+              status: item.success ? "Success" : item.error || "Failed",
+            }));
+
+            // Calculate statistics and add analysis type
+            const endTime = Date.now();
+            const generationTime = ((endTime - startTime) / 1000).toFixed(2);
+            const stats = calculateStats(results, data.websiteUrl || "Unknown");
+            stats.generationTime = generationTime;
+            stats.analysisType =
+              data.mode === "url"
+                ? "Website URL Analysis"
+                : "Image URLs Analysis";
+            stats.originalWebsiteUrl = data.websiteUrl || null;
+            stats.highlightSize = data.highlightSize || null; // Add highlight size to stats
+
+            // For Image URLs Analysis, extract base website from the provided URLs
+            if (
+              data.mode === "urls" &&
+              data.imageUrls &&
+              data.imageUrls.length > 0
+            ) {
+              const extractedBaseUrl = extractBaseWebsiteFromUrls(
+                data.imageUrls
+              );
+              if (extractedBaseUrl) {
+                stats.originalWebsiteUrl = extractedBaseUrl;
+                stats.extractedWebsiteName = getWebsiteName(extractedBaseUrl);
+              }
+            }
+
+            updateProgress(
+              100,
+              "Analysis complete!",
+              `Found ${results.length} valid images in ${generationTime}s`
+            );
+
+            analysisResult = { results, stats, summary: analyzeData.summary };
+
+            // Show results preview
+            setTimeout(() => {
+              showResultsPreview(analysisResult);
+            }, 500);
+
+            return analysisResult;
+          } catch (error) {
+            console.error("Analysis error:", error);
+            updateProgress(0, "Error occurred", error.message);
+            throw error;
+          } finally {
+            setTimeout(() => {
+              hideProgress();
+            }, 1500);
+          }
+        }
+
+        // Helper function to extract base website URL from image URLs
+        function extractBaseWebsiteFromUrls(urls) {
+          const domains = new Map();
+
+          urls.forEach((url) => {
+            try {
+              const urlObj = new URL(url);
+              const domain = urlObj.hostname;
+              const baseUrl = `${urlObj.protocol}//${domain}`;
+              domains.set(domain, baseUrl);
+            } catch (e) {
+              // Skip invalid URLs
+            }
+          });
+
+          if (domains.size === 0) return null;
+
+          // Return the most common domain, or first one if tie
+          const domainArray = Array.from(domains.entries());
+          return domainArray[0][1]; // Return base URL of first domain
+        }
+        function getFilename(url) {
+          try {
+            const path = new URL(url).pathname;
+            return path.split("/").pop() || "Unnamed";
+          } catch {
+            return "Unnamed";
+          }
+        }
+
+        function getImageType(url) {
+          const extension = url.split(".").pop().toLowerCase().split("?")[0];
+          const typeMap = {
+            jpg: "JPEG",
+            jpeg: "JPEG",
+            png: "PNG",
+            gif: "GIF",
+            webp: "WebP",
+            svg: "SVG",
+            ico: "Icon",
+            bmp: "BMP",
+            tiff: "TIFF",
+            avif: "AVIF",
+          };
+          return typeMap[extension] || "Unknown";
+        }
+
         function getWebsiteName(url) {
           try {
-            const domain = new URL(url).hostname.replace("www.", "");
-            return domain.split(".")[0]; // Get the main part (e.g., "orange" from "orange.jo")
+            return new URL(url).hostname.replace("www.", "").split(".")[0];
           } catch {
             return "website";
           }
         }
 
-        // Function to check if URL should be ignored
-        function shouldIgnoreUrl(url) {
-          const ignoredDomains = [
-            "facebook.com",
-            "google.com",
-            "fbcdn.net",
-            "googleusercontent.com",
-          ];
-          try {
-            const domain = new URL(url).hostname;
-            return ignoredDomains.some((d) => domain.includes(d));
-          } catch {
-            return false;
-          }
-        }
+        function calculateStats(results, websiteUrl) {
+          // Only count successful results (filtered content types are already removed)
+          const validResults = results.filter((r) => r.success);
+          const totalImages = validResults.length;
+          const successful = validResults.length;
+          const failed = results.length - validResults.length;
 
-        // Function to get image size from URL
-        async function getImageSize(url) {
-          try {
-            const response = await fetch(
-              "https://otools-server.onrender.com/api/analyze-images",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ urls: [url] }),
-              }
-            );
-
-            if (!response.ok) throw new Error("Failed to fetch image size");
-
-            const data = await response.json();
-            const result = data.results[0];
-
-            if (!result.success)
-              throw new Error(result.error || "Unknown error");
-
-            const bytes = result.sizeBytes;
-            const kb = (bytes / 1024).toFixed(2);
-            const mb = (bytes / (1024 * 1024)).toFixed(2);
-
-            return {
-              bytes: bytes,
-              kb: kb,
-              mb: mb,
-              success: true,
-            };
-          } catch (error) {
-            console.error(`Error getting size for ${url}:`, error);
-            return {
-              bytes: 0,
-              kb: 0,
-              mb: 0,
-              success: false,
-            };
-          }
-        }
-
-        // Function to get image type from URL
-        function getImageType(url) {
-          const extension = url.split(".").pop().toLowerCase().split("?")[0];
-          switch (extension) {
-            case "jpg":
-            case "jpeg":
-              return "JPEG";
-            case "png":
-              return "PNG";
-            case "gif":
-              return "GIF";
-            case "webp":
-              return "WebP";
-            case "svg":
-              return "SVG";
-            case "ico":
-              return "Icon";
-            default:
-              return "Unknown";
-          }
-        }
-
-        // Function to get filename from URL
-        function getFilename(url) {
-          const path = url.split("?")[0]; // Remove query parameters
-          return path.split("/").pop() || "Unnamed";
-        }
-
-        // Function to analyze all images
-        async function analyzeImages(urls) {
-          const results = [];
-          let totalSizeBytes = 0;
-          let successful = 0;
-          let websiteName = "website";
-
-          progressContainer.classList.remove("hidden");
-          resultsPreview.classList.add("hidden");
-
-          // Filter out ignored URLs and get website name from first valid URL
-          const validUrls = urls.filter((url) => {
-            if (shouldIgnoreUrl(url)) return false;
-            if (websiteName === "website") {
-              websiteName = getWebsiteName(url);
-            }
-            return true;
-          });
-
-          if (validUrls.length === 0) {
-            throw new Error(
-              "No valid image URLs found (Facebook/Google URLs are ignored)"
-            );
-          }
-
-          for (let i = 0; i < validUrls.length; i++) {
-            const url = validUrls[i];
-            const progress = Math.floor(((i + 1) / validUrls.length) * 100);
-
-            progressBar.style.width = `${progress}%`;
-            progressPercent.textContent = `${progress}%`;
-            progressText.textContent = `Processing image ${i + 1} of ${
-              validUrls.length
-            }...`;
-
-            const filename = getFilename(url);
-            const type = getImageType(url);
-            const sizeInfo = await getImageSize(url);
-
-            if (sizeInfo.success) {
-              totalSizeBytes += sizeInfo.bytes;
-              successful++;
-            }
-
-            results.push({
-              url: url,
-              filename: filename,
-              type: type,
-              sizeBytes: sizeInfo.bytes,
-              sizeKB: sizeInfo.kb,
-              sizeMB: sizeInfo.mb,
-              success: sizeInfo.success,
-            });
-          }
-
-          // Calculate statistics
-          const typeStats = {};
-          results.forEach((item) => {
-            typeStats[item.type] = (typeStats[item.type] || 0) + 1;
-          });
+          const totalSizeBytes = validResults.reduce(
+            (sum, r) => sum + r.sizeBytes,
+            0
+          );
 
           const totalSizeKB = (totalSizeBytes / 1024).toFixed(2);
           const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
 
+          const typeStats = {};
+          validResults.forEach((item) => {
+            typeStats[item.type] = (typeStats[item.type] || 0) + 1;
+          });
+
+          // For Image URLs Analysis, use a generic name since URLs might be from multiple sites
+          // The actual extracted website name will be set in analyzeImages function
+          let websiteName;
+          if (websiteUrl && websiteUrl !== "Unknown") {
+            websiteName = getWebsiteName(websiteUrl);
+          } else {
+            websiteName = "image-analysis";
+          }
+
           return {
-            results: results,
-            stats: {
-              totalImages: validUrls.length,
-              successful: successful,
-              failed: validUrls.length - successful,
-              totalSizeBytes: totalSizeBytes,
-              totalSizeKB: totalSizeKB,
-              totalSizeMB: totalSizeMB,
-              typeStats: typeStats,
-              websiteName: websiteName,
-            },
+            totalImages,
+            successful,
+            failed,
+            totalSizeBytes,
+            totalSizeKB,
+            totalSizeMB,
+            typeStats,
+            websiteName,
+            // analysisType and originalWebsiteUrl will be added in analyzeImages function
           };
         }
 
-        // Function to show results preview
         function showResultsPreview(analysis) {
-          const { results, stats } = analysis;
+          const { results, stats, summary } = analysis;
 
-          // Update stats container
-          statsContainer.innerHTML = `
-            <div class="bg-white p-4 rounded-lg shadow">
-              <div class="text-sm text-gray-500">Total Images</div>
-              <div class="text-2xl font-bold text-orange-600">${stats.totalImages}</div>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow">
-              <div class="text-sm text-gray-500">Successful</div>
-              <div class="text-2xl font-bold text-green-600">${stats.successful}</div>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow">
-              <div class="text-sm text-gray-500">Total Size</div>
-              <div class="text-2xl font-bold text-blue-600">${stats.totalSizeMB} MB</div>
-            </div>
-          `;
+          // Different display based on analysis type
+          const isWebsiteAnalysis =
+            stats.analysisType === "Website URL Analysis";
 
-          // Update results table
+          // Update stats container with different info for each type
+          if (isWebsiteAnalysis) {
+            statsContainer.innerHTML = `
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                <div class="text-sm text-gray-500">Valid Images</div>
+                <div class="text-2xl font-bold text-blue-600">${
+                  results.length
+                }</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                <div class="text-sm text-gray-500">Total Size</div>
+                <div class="text-2xl font-bold text-green-600">${
+                  stats.totalSizeMB
+                } MB</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                <div class="text-sm text-gray-500">Filtered Out</div>
+                <div class="text-2xl font-bold text-red-600">${
+                  summary?.filtered || 0
+                }</div>
+              </div>
+            `;
+          } else {
+            // Image URLs Analysis - Different focus
+            statsContainer.innerHTML = `
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+                <div class="text-sm text-gray-500">Processed URLs</div>
+                <div class="text-2xl font-bold text-orange-600">${
+                  results.length
+                }</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                <div class="text-sm text-gray-500">Total Size</div>
+                <div class="text-2xl font-bold text-blue-600">${
+                  stats.totalSizeMB
+                } MB</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
+                <div class="text-sm text-gray-500">Success Rate</div>
+                <div class="text-2xl font-bold text-purple-600">${Math.round(
+                  (results.length /
+                    (summary?.totalProcessed || results.length)) *
+                    100
+                )}%</div>
+              </div>
+            `;
+          }
+
+          // Update results table (show all results)
           resultsTable.innerHTML = "";
-          results.slice(0, 10).forEach((item, index) => {
+          results.forEach((item, index) => {
             const row = document.createElement("tr");
             row.className = item.success ? "" : "bg-red-50";
 
@@ -734,475 +1327,647 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               <td>${item.filename}</td>
               <td>${item.success ? item.sizeKB : "N/A"}</td>
               <td>${item.type}</td>
-              <td>${item.success ? "Success" : "Failed"}</td>
+              <td><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">${
+                item.contentType || "Unknown"
+              }</span></td>
+              <td><span class="px-2 py-1 text-xs rounded-full ${
+                item.success
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }">${item.status}</span></td>
             `;
 
             resultsTable.appendChild(row);
           });
 
-          // Show the preview
+          // Show different filtering summaries based on analysis type
+          if (summary && summary.filtered > 0) {
+            const filteringSummary = document.createElement("div");
+            filteringSummary.className =
+              "mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded";
+
+            if (isWebsiteAnalysis) {
+              filteringSummary.innerHTML = `
+                <h4 class="font-semibold text-yellow-800 mb-2">Website Scraping Summary</h4>
+                <p class="text-sm text-yellow-700">Extracted from website and filtered out ${summary.filtered} non-image URLs (HTML pages, CSS files, etc.)</p>
+              `;
+            } else {
+              const websiteInfo = stats.extractedWebsiteName
+                ? ` from ${stats.extractedWebsiteName}`
+                : "";
+              filteringSummary.innerHTML = `
+                <h4 class="font-semibold text-yellow-800 mb-2">URL Processing Summary</h4>
+                <p class="text-sm text-yellow-700">Analyzed ${summary.totalProcessed} URLs${websiteInfo} and filtered out ${summary.filtered} non-image content types.</p>
+              `;
+            }
+
+            resultsPreview.appendChild(filteringSummary);
+          }
+
           resultsPreview.classList.remove("hidden");
         }
 
-        // Function to generate HTML report (similar to PS1 HTML format)
+        // Generate HTML report (matching PowerShell format)
         function generateHTMLReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
 
-          // Sort results by size (descending)
-          const sortedResults = [...results].sort(
+          // Only use successful results (filtered content types are already removed)
+          const validResults = results.filter((r) => r.success);
+          const sortedResults = [...validResults].sort(
             (a, b) => b.sizeBytes - a.sizeBytes
           );
 
-          // Extract website URL from the first image URL
+          // Use the original website URL if available, otherwise extract from image URLs
           let websiteUrl = "#";
-          if (sortedResults.length > 0 && sortedResults[0].url) {
-            try {
-              const urlObj = new URL(sortedResults[0].url);
-              websiteUrl = `${urlObj.protocol}//${urlObj.hostname}`;
-            } catch (e) {
-              console.error("Error parsing website URL:", e);
+          let websiteDisplayName = stats.websiteName;
+
+          if (stats.originalWebsiteUrl) {
+            websiteUrl = stats.originalWebsiteUrl;
+            if (stats.analysisType === "Website URL Analysis") {
+              websiteDisplayName = stats.websiteName;
+            } else {
+              // For Image URLs Analysis, show the extracted website name
+              websiteDisplayName =
+                stats.extractedWebsiteName ||
+                getWebsiteName(stats.originalWebsiteUrl);
             }
+          } else if (stats.analysisType === "Image URLs Analysis") {
+            websiteUrl = "#";
+            websiteDisplayName = "Mixed Sources";
           }
 
-          // Create HTML content
-          let htmlContent = `<!DOCTYPE html>
+          // Generate HTML content matching PowerShell script format
+          return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${stats.websiteName} Images Analysis Report</title>
-  <style>
-    /* Base Styles */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f9fafb;
-      margin: 0;
-      padding: 20px;
-    }
-    
-    .container {
-      max-width: 1300px;
-      margin: 0 auto;
-    }
-    
-    /* Header Section */
-    .report-header {
-      background: linear-gradient(135deg, #2b6cb0, #4299e1);
-      color: white;
-      padding: 30px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .report-header::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      width: 150px;
-      height: 150px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-    }
-    
-    .report-header h1 {
-      color: white;
-      font-size: 2.2rem;
-      margin-bottom: 15px;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.5);
-      padding-bottom: 10px;
-      display: inline-block;
-    }
-    
-    .report-header p {
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-    
-    .report-header strong {
-      opacity: 1;
-    }
-    
-    .website-link {
-      color: #fff;
-      text-decoration: underline;
-    }
-    
-    /* Statistics Section */
-    .stats-container {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .stats-title {
-      font-size: 1.8rem;
-      color: #2d3748;
-      margin-bottom: 15px;
-      position: relative;
-    }
-    
-    .stats-title::after {
-      content: '';
-      display: block;
-      width: 50px;
-      height: 4px;
-      background: #4299e1;
-      margin-top: 8px;
-    }
-    
-    .summary-items {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      margin-bottom: 30px;
-      gap: 20px;
-    }
-    
-    .summary-item {
-      flex: 1;
-      min-width: 250px;
-      padding: 15px;
-      background-color: #f7fafc;
-      border-radius: 8px;
-      border-left: 4px solid #2b6cb0;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-    
-    .summary-item:hover {
-      transform: translateY(-3px);
-    }
-    
-    .summary-item strong {
-      display: block;
-      font-size: 2rem;
-      color: #2b6cb0;
-      margin-bottom: 5px;
-    }
-    
-    .summary-item span {
-      color: #2d3748;
-      font-size: 1.1rem;
-    }
-    
-    .stats-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    
-    .stats-item {
-      background-color: #f7fafc;
-      padding: 15px;
-      border-radius: 8px;
-      min-width: 180px;
-      flex-grow: 1;
-      text-align: center;
-      border-bottom: 3px solid #4299e1;
-      transition: transform 0.3s ease;
-    }
-    
-    .stats-item:hover {
-      transform: translateY(-3px);
-    }
-    
-    .stats-item strong {
-      display: block;
-      font-size: 1.5rem;
-      color: #2b6cb0;
-    }
-    
-    .stats-item span {
-      font-size: 0.9rem;
-      color: #2d3748;
-    }
-    
-    /* Table Section */
-    .table-container {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      overflow-x: auto;
-    }
-    
-    .table-title {
-      font-size: 1.8rem;
-      color: #2d3748;
-      margin-bottom: 15px;
-      position: relative;
-    }
-    
-    .table-title::after {
-      content: '';
-      display: block;
-      width: 50px;
-      height: 4px;
-      background: #4299e1;
-      margin-top: 8px;
-    }
-    
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.95rem;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    th {
-      background-color: #2b6cb0;
-      color: white;
-      font-weight: 600;
-      padding: 12px 15px;
-      text-align: left;
-      position: sticky;
-      top: 0;
-      transition: background-color 0.3s ease;
-    }
-    
-    th:hover {
-      background-color: #3182ce;
-    }
-    
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #ddd;
-      vertical-align: middle;
-      transition: background-color 0.3s ease;
-    }
-    
-    tr:nth-child(even) {
-      background-color: #f8f9fa;
-    }
-    
-    tr:hover td {
-      background-color: #ebf8ff;
-    }
-    
-    .image-preview {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .image-preview:hover {
-      transform: scale(1.5);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 10;
-    }
-    
-    .url-cell {
-      max-width: 450px;
-      word-break: break-all;
-      font-size: 0.9rem;
-    }
-    
-    .url-link {
-      color: #2b6cb0;
-      text-decoration: none;
-    }
-    
-    .url-link:hover {
-      text-decoration: underline;
-    }
-    
-    .filename-cell {
-      max-width: 200px;
-      word-break: break-all;
-    }
-    
-    /* Footer */
-    .footer {
-      font-size: 0.9rem;
-      color: #6c757d;
-      text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      border-top: 1px solid #dee2e6;
-    }
-    
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease forwards;
-    }
-    
-    /* Responsive Design */
-    @media only screen and (max-width: 768px) {
-      .summary-items {
-        flex-direction: column;
-      }
-      
-      .summary-item {
-        min-width: 100%;
-      }
-      
-      .table-container {
-        padding: 15px 10px;
-      }
-      
-      th, td {
-        padding: 10px;
-      }
-      
-      .report-header {
-        padding: 20px;
-      }
-      
-      .image-preview {
-        width: 40px;
-        height: 40px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <!-- Header Section -->
-    <div class="report-header fade-in">
-      <h1>${stats.websiteName} Images Analysis Report</h1>
-      <p><strong>Website:</strong> <a href="${websiteUrl}" class="website-link" target="_blank">${
-            stats.websiteName
-          }</a></p>
-      <p><strong>Date Generated:</strong> ${currentDate}</p>
-    </div>
-
-    <!-- Statistics Section -->
-    <div class="stats-container fade-in">
-      <h2 class="stats-title">Image Statistics</h2>
-      <div class="summary-items">
-        <div class="summary-item">
-          <strong>${stats.totalImages}</strong>
-          <span>Images Found</span>
-        </div>
-        <div class="summary-item">
-          <strong>${stats.totalSizeMB}</strong>
-          <span>Total Size (MB)</span>
-        </div>
-        <div class="summary-item">
-          <strong>${stats.totalSizeKB}</strong>
-          <span>Total Size (KB)</span>
-        </div>
-      </div>
-
-      <div class="stats-title">Distribution by Image Format</div>
-      <div class="stats-grid">
-        ${Object.entries(stats.typeStats)
-          .map(([type, count]) => {
-            const percentage = ((count / stats.totalImages) * 100).toFixed(1);
-            return `
-            <div class="stats-item">
-              <strong>${count}</strong>
-              <span>${type} (${percentage}%)</span>
-            </div>
-            `;
-          })
-          .join("")}
-      </div>
-    </div>
-
-    <!-- Table Section -->
-    <div class="table-container fade-in">
-      <h2 class="table-title">Image Details</h2>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Preview</th>
-            <th>Filename</th>
-            <th>Type</th>
-            <th>Size (MB)</th>
-            <th>Size (KB)</th>
-            <th>URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${sortedResults
-            .map(
-              (item, index) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>
-              ${
-                item.success
-                  ? `<img src="${item.url}" class="image-preview" alt="Preview" onerror="this.style.display='none'">`
-                  : '<span style="color: #e53e3e;">Failed</span>'
-              }
-            </td>
-            <td class="filename-cell">${item.filename}</td>
-            <td>${item.type}</td>
-            <td>${item.success ? item.sizeMB : "N/A"}</td>
-            <td>${item.success ? item.sizeKB : "N/A"}</td>
-            <td class="url-cell"><a href="${
-              item.url
-            }" class="url-link" target="_blank">${item.url}</a></td>
-          </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="footer">
-      <p>Generated by OTools - Images Analyzer</p>
-    </div>
-  </div>
-</body>
-</html>`;
-
-          return htmlContent;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Image Analysis Report - ${stats.websiteName}</title>
+    <style>
+        :root {
+            --primary-color: #2b6cb0;
+            --primary-light: #4299e1;
+            --secondary-color: #cbd5e0;
+            --dark-color: #2d3748;
+            --light-color: #f7fafc;
+            --danger-color: #e53e3e;
+            --success-color: #38a169;
+            --warning-color: #ecc94b;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
-        // Function to generate CSV report (similar to PS1 CSV format)
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background: var(--primary-light);
+            margin-top: 8px;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .report-header h1 {
+            color: white;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .report-header p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .report-header strong {
+            opacity: 1;
+        }
+
+        .website-link {
+            color: #fff;
+            text-decoration: underline;
+            transition: var(--transition);
+        }
+
+        .website-link:hover {
+            color: var(--light-color);
+        }
+
+        .stats-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .stats-title {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .summary-items {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .summary-item {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            margin: 10px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+            text-align: center;
+        }
+
+        .summary-item strong {
+            display: block;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .summary-item span {
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats-item {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            min-width: 160px;
+            flex-grow: 1;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-light);
+        }
+
+        .stats-item strong {
+            display: block;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .stats-item span {
+            font-size: 0.9rem;
+            color: var(--dark-color);
+        }
+
+        .table-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto;
+            font-size: 0.9rem;
+            table-layout: fixed; /* Fixed layout for consistent column widths */
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            height: 60px; /* Fixed row height */
+            vertical-align: middle;
+            overflow: hidden; /* Hide overflow content */
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            height: auto; /* Allow header to have natural height */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #ebf8ff;
+            transition: var(--transition);
+        }
+
+        .url-cell {
+            width: 40%; /* Fixed width for URL column */
+            max-width: 40%;
+            word-break: break-all;
+            font-size: 0.85rem;
+            position: relative;
+        }
+
+        .url-truncated {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .url-truncated:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        .url-truncated::after {
+            content: '...';
+            position: absolute;
+            right: 0;
+            background: linear-gradient(to right, transparent, #fff 70%);
+            padding-left: 20px;
+            width: 30px;
+        }
+
+        tr:nth-child(even) .url-truncated::after {
+            background: linear-gradient(to right, transparent, #f8f9fa 70%);
+        }
+
+        tr:hover .url-truncated::after {
+            background: linear-gradient(to right, transparent, #ebf8ff 70%);
+        }
+
+        /* Highlighting for large images */
+        .highlighted-row {
+            background-color: #dbeafe !important; /* Light blue highlight */
+            border-left: 4px solid #3b82f6 !important;
+        }
+
+        .highlighted-row:hover {
+            background-color: #bfdbfe !important;
+        }
+
+        .highlighted-row .url-truncated::after {
+            background: linear-gradient(to right, transparent, #dbeafe 70%) !important;
+        }
+
+        .highlighted-row:hover .url-truncated::after {
+            background: linear-gradient(to right, transparent, #bfdbfe 70%) !important;
+        }
+
+        .filename-cell {
+            width: 15%;
+            max-width: 15%;
+            word-break: break-all;
+        }
+
+        .preview-cell {
+            width: 8%;
+            text-align: center;
+        }
+
+        .size-cell {
+            width: 10%;
+            text-align: right;
+        }
+
+        .type-cell {
+            width: 8%;
+            text-align: center;
+        }
+
+        .content-type-cell {
+            width: 12%;
+            text-align: center;
+        }
+
+        .status-cell {
+            width: 7%;
+            text-align: center;
+        }
+
+        .image-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .image-link:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        .image-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: scale(2);
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-success { 
+            color: var(--success-color); 
+            font-weight: bold; 
+        }
+        
+        .status-error { 
+            color: var(--danger-color); 
+            font-weight: bold; 
+        }
+
+        .footer {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #dee2e6;
+            background-color: white;
+            border-radius: var(--border-radius);
+        }
+
+        @media only screen and (max-width: 768px) {
+            .summary-items {
+                flex-direction: column;
+            }
+            
+            .summary-item {
+                margin: 5px 0;
+                min-width: 100%;
+            }
+            
+            .table-container {
+                padding: 15px 10px;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+            
+            .report-header {
+                padding: 20px;
+            }
+
+            .image-preview {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <h1>Image Analysis Report</h1>
+            <p><strong>Website:</strong> <a href="${websiteUrl}" class="website-link" target="_blank">${websiteDisplayName}</a></p>
+            <p><strong>Analysis Date:</strong> ${currentDate}</p>
+            <p><strong>Tool:</strong> ${stats.analysisType}</p>
+            ${
+              stats.highlightSize
+                ? `<p><strong>Highlighting:</strong> Images ≥ ${stats.highlightSize} KB are highlighted in light blue</p>`
+                : ""
+            }
+        </div>
+
+        <h2>Image Statistics</h2>
+        <div class="stats-container">
+            <div class="summary-items">
+                <div class="summary-item">
+                    <strong>${validResults.length}</strong>
+                    <span>Valid Images Found</span>
+                </div>
+                <div class="summary-item">
+                    <strong>${stats.totalSizeMB} MB</strong>
+                    <span>Total Size</span>
+                </div>
+                <div class="summary-item">
+                    <strong>${stats.successful}</strong>
+                    <span>Successfully Loaded</span>
+                </div>
+            </div>
+
+            <div class="stats-title">Distribution by Image Format</div>
+            <div class="stats-grid">
+                ${Object.entries(stats.typeStats)
+                  .map(([type, count]) => {
+                    const percentage = (
+                      (count / validResults.length) *
+                      100
+                    ).toFixed(1);
+                    return `
+                    <div class="stats-item">
+                        <strong>${count}</strong>
+                        <span>${type} (${percentage}%)</span>
+                    </div>
+                  `;
+                  })
+                  .join("")}
+            </div>
+        </div>
+
+        <h2>Image Results (Sorted by Size)</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th class="preview-cell">Preview</th>
+                        <th class="filename-cell">Filename</th>
+                        <th class="type-cell">Type</th>
+                        <th class="content-type-cell">Content Type</th>
+                        <th class="size-cell">Size (MB)</th>
+                        <th class="size-cell">Size (KB)</th>
+                        <th class="status-cell">Status</th>
+                        <th class="url-cell">URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sortedResults
+                      .map((item, index) => {
+                        const statusClass = item.success
+                          ? "status-success"
+                          : "status-error";
+                        const previewHtml = item.success
+                          ? `<img src="${item.url}" class="image-preview" alt="Preview" onerror="this.style.display='none'">`
+                          : '<span style="color: #999; font-size: 0.8rem;">No Preview</span>';
+
+                        // Truncate URL for display but keep full URL in href
+                        const displayUrl =
+                          item.url.length > 80
+                            ? item.url.substring(0, 77)
+                            : item.url;
+
+                        // Check if this row should be highlighted
+                        const shouldHighlight =
+                          stats.highlightSize &&
+                          item.success &&
+                          item.sizeBytes &&
+                          item.sizeBytes / 1024 >= stats.highlightSize;
+
+                        const rowClass = shouldHighlight
+                          ? "highlighted-row"
+                          : "";
+
+                        return `
+                        <tr class="${rowClass}">
+                            <td style="width: 5%; text-align: center;">${
+                              index + 1
+                            }</td>
+                            <td class="preview-cell">${previewHtml}</td>
+                            <td class="filename-cell">${item.filename}</td>
+                            <td class="type-cell">${item.type}</td>
+                            <td class="content-type-cell">${
+                              item.contentType || "Unknown"
+                            }</td>
+                            <td class="size-cell">${item.sizeMB}</td>
+                            <td class="size-cell">${item.sizeKB}</td>
+                            <td class="status-cell ${statusClass}">${
+                          item.status
+                        }</td>
+                            <td class="url-cell">
+                              <a href="${
+                                item.url
+                              }" class="url-truncated" target="_blank" title="${
+                          item.url
+                        }">
+                                ${displayUrl}
+                              </a>
+                            </td>
+                        </tr>
+                      `;
+                      })
+                      .join("")}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>`;
+        }
+
+        // Generate CSV report (matching PowerShell format)
         function generateCSVReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
 
-          // Create CSV content with table-like formatting
-          let csvContent = `Website: ${stats.websiteName}\n`;
+          // Only use successful results (filtered content types are already removed)
+          const validResults = results.filter((r) => r.success);
+
+          // For CSV, show proper website name or extracted website name for Image URLs Analysis
+          let csvWebsiteName = stats.websiteName;
+          if (stats.analysisType === "Image URLs Analysis") {
+            csvWebsiteName =
+              stats.extractedWebsiteName || "Image URLs Analysis";
+          }
+
+          let csvContent = `Website: ${csvWebsiteName}\n`;
           csvContent += `Date: ${currentDate}\n`;
-          csvContent += `Total Images: ${stats.totalImages}\n`;
+          csvContent += `Tool: ${stats.analysisType}\n`;
+          csvContent += `Valid Images: ${validResults.length}\n`;
           csvContent += `Total Size: ${stats.totalSizeMB} MB (${stats.totalSizeKB} KB)\n\n`;
 
           csvContent += `=== Image Format Statistics ===\n`;
           Object.entries(stats.typeStats).forEach(([type, count]) => {
-            const percentage = ((count / stats.totalImages) * 100).toFixed(1);
+            const percentage = ((count / validResults.length) * 100).toFixed(1);
             csvContent += `${type}: ${count} (${percentage}%)\n`;
           });
 
           csvContent += `\n`;
 
-          // Find the longest URL for formatting
+          // Create table format
           const maxUrlLength = Math.max(
-            ...results.map((item) => item.url.length),
+            ...validResults.map((item) => item.url.length),
             80
           );
           const urlColumnWidth = Math.min(maxUrlLength, 150);
           const mbColumnWidth = 12;
           const kbColumnWidth = 14;
           const typeColumnWidth = 10;
+          const contentTypeColumnWidth = 25;
+          const filenameColumnWidth = 30;
 
-          // Create table header separators
           const separator =
             "+" +
             "-".repeat(urlColumnWidth + 2) +
@@ -1212,121 +1977,118 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             "-".repeat(kbColumnWidth + 2) +
             "+" +
             "-".repeat(typeColumnWidth + 2) +
+            "+" +
+            "-".repeat(contentTypeColumnWidth + 2) +
+            "+" +
+            "-".repeat(filenameColumnWidth + 2) +
             "+\n";
 
           csvContent += separator;
-
-          // Add column headers
           csvContent +=
             `| ${"Image Path".padEnd(urlColumnWidth)} | ` +
             `${"Size (MB)".padEnd(mbColumnWidth)} | ` +
             `${"Size (KB)".padEnd(kbColumnWidth)} | ` +
-            `${"Format".padEnd(typeColumnWidth)} |\n`;
-
+            `${"Format".padEnd(typeColumnWidth)} | ` +
+            `${"Content Type".padEnd(contentTypeColumnWidth)} | ` +
+            `${"Filename".padEnd(filenameColumnWidth)} |\n`;
           csvContent += separator;
 
-          // Add data rows
-          results.forEach((item) => {
+          validResults.forEach((item) => {
             csvContent +=
               `| ${item.url.padEnd(urlColumnWidth)} | ` +
-              `${(item.success ? item.sizeMB : "N/A")
-                .toString()
-                .padEnd(mbColumnWidth)} | ` +
-              `${(item.success ? item.sizeKB : "N/A")
-                .toString()
-                .padEnd(kbColumnWidth)} | ` +
-              `${item.type.padEnd(typeColumnWidth)} |\n`;
-
+              `${(item.sizeMB || "N/A").toString().padEnd(mbColumnWidth)} | ` +
+              `${(item.sizeKB || "N/A").toString().padEnd(kbColumnWidth)} | ` +
+              `${item.type.padEnd(typeColumnWidth)} | ` +
+              `${(item.contentType || "Unknown").padEnd(
+                contentTypeColumnWidth
+              )} | ` +
+              `${item.filename.padEnd(filenameColumnWidth)} |\n`;
             csvContent += separator;
           });
 
           return csvContent;
         }
 
-        // Function to download file
+        // Download file helper
         function downloadFile(filename, content, contentType) {
           const blob = new Blob([content], { type: contentType });
           const url = URL.createObjectURL(blob);
-
           const a = document.createElement("a");
           a.href = url;
           a.download = filename;
           document.body.appendChild(a);
           a.click();
-
           setTimeout(() => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
           }, 100);
         }
 
-        // Set up event listeners for download buttons
+        // Event listeners for download buttons
         downloadHTML.addEventListener("click", async function () {
-          const urls = dataInput.value
-            .split("\n")
-            .filter((url) => url.trim() !== "");
-          if (urls.length === 0) {
-            alert("Please enter at least one image URL!");
-            return;
-          }
+          const data = getInputData();
+          if (!validateInput(data)) return;
 
-          // Set progress bar color for HTML
-          progressBar.className =
-            "h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600";
+          downloadHTML.disabled = true;
+          downloadCSV.disabled = true;
 
           try {
-            const analysis = await analyzeImages(urls);
-            showResultsPreview(analysis);
-
+            const analysis = await analyzeImages(data, "html");
             const htmlReport = generateHTMLReport(analysis);
-            const filename = `${analysis.stats.websiteName}-images-analyze-${
+
+            // Use extracted website name for filename if available
+            let filenameSite = analysis.stats.websiteName;
+            if (analysis.stats.extractedWebsiteName) {
+              filenameSite = analysis.stats.extractedWebsiteName;
+            }
+
+            const filename = `${filenameSite}-images-analyze-${
               new Date().toISOString().split("T")[0]
             }.html`;
             downloadFile(filename, htmlReport, "text/html");
           } catch (error) {
             console.error("Error generating HTML report:", error);
             alert(
-              error.message ||
-                "An error occurred while generating the report. Please check the console for details."
+              error.message || "An error occurred while generating the report."
             );
           } finally {
-            progressContainer.classList.add("hidden");
+            downloadHTML.disabled = false;
+            downloadCSV.disabled = false;
           }
         });
 
         downloadCSV.addEventListener("click", async function () {
-          const urls = dataInput.value
-            .split("\n")
-            .filter((url) => url.trim() !== "");
-          if (urls.length === 0) {
-            alert("Please enter at least one image URL!");
-            return;
-          }
+          const data = getInputData();
+          if (!validateInput(data)) return;
 
-          // Set progress bar color for CSV
-          progressBar.className =
-            "h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600";
+          downloadHTML.disabled = true;
+          downloadCSV.disabled = true;
 
           try {
-            const analysis = await analyzeImages(urls);
-            showResultsPreview(analysis);
-
+            const analysis = await analyzeImages(data, "csv");
             const csvReport = generateCSVReport(analysis);
-            const filename = `${analysis.stats.websiteName}-images-analyze-${
+
+            // Use extracted website name for filename if available
+            let filenameSite = analysis.stats.websiteName;
+            if (analysis.stats.extractedWebsiteName) {
+              filenameSite = analysis.stats.extractedWebsiteName;
+            }
+
+            const filename = `${filenameSite}-images-analyze-${
               new Date().toISOString().split("T")[0]
             }.csv`;
             downloadFile(filename, csvReport, "text/csv");
           } catch (error) {
             console.error("Error generating CSV report:", error);
             alert(
-              error.message ||
-                "An error occurred while generating the report. Please check the console for details."
+              error.message || "An error occurred while generating the report."
             );
           } finally {
-            progressContainer.classList.add("hidden");
+            downloadHTML.disabled = false;
+            downloadCSV.disabled = false;
           }
         });
-      });
+      }
     </script>
   </body>
 </html>
