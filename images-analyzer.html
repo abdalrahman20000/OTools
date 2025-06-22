@@ -1010,7 +1010,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               );
 
               const extractResponse = await fetch(
-                "https://otools-server.onrender.com/api/analyze-images",
+                "http://localhost:3000/api/extract-images",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -1358,7 +1358,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           resultsPreview.classList.remove("hidden");
         }
 
-        // Generate HTML report (matching PowerShell format)
+        // Generate HTML report (Updated - removed Size MB column)
         function generateHTMLReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
@@ -1619,8 +1619,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         }
 
         .url-cell {
-            width: 40%; /* Fixed width for URL column */
-            max-width: 40%;
+            width: 45%; /* Increased width for URL column */
+            max-width: 45%;
             word-break: break-all;
             font-size: 0.85rem;
             position: relative;
@@ -1678,8 +1678,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         }
 
         .filename-cell {
-            width: 15%;
-            max-width: 15%;
+            width: 18%;
+            max-width: 18%;
             word-break: break-all;
         }
 
@@ -1689,22 +1689,22 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         }
 
         .size-cell {
-            width: 10%;
+            width: 12%;
             text-align: right;
         }
 
         .type-cell {
-            width: 8%;
+            width: 9%;
             text-align: center;
         }
 
         .content-type-cell {
-            width: 12%;
+            width: 15%;
             text-align: center;
         }
 
         .status-cell {
-            width: 7%;
+            width: 8%;
             text-align: center;
         }
 
@@ -1810,7 +1810,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                     <span>Valid Images Found</span>
                 </div>
                 <div class="summary-item">
-                    <strong>${stats.totalSizeMB} MB</strong>
+                    <strong>${stats.totalSizeKB} KB</strong>
                     <span>Total Size</span>
                 </div>
                 <div class="summary-item">
@@ -1848,7 +1848,6 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                         <th class="filename-cell">Filename</th>
                         <th class="type-cell">Type</th>
                         <th class="content-type-cell">Content Type</th>
-                        <th class="size-cell">Size (MB)</th>
                         <th class="size-cell">Size (KB)</th>
                         <th class="status-cell">Status</th>
                         <th class="url-cell">URL</th>
@@ -1892,7 +1891,6 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                             <td class="content-type-cell">${
                               item.contentType || "Unknown"
                             }</td>
-                            <td class="size-cell">${item.sizeMB}</td>
                             <td class="size-cell">${item.sizeKB}</td>
                             <td class="status-cell ${statusClass}">${
                           item.status
@@ -1918,7 +1916,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
 </html>`;
         }
 
-        // Generate CSV report (matching PowerShell format)
+        // Generate CSV report (Simple Excel-like format)
         function generateCSVReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
@@ -1933,68 +1931,39 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               stats.extractedWebsiteName || "Image URLs Analysis";
           }
 
-          let csvContent = `Website: ${csvWebsiteName}\n`;
-          csvContent += `Date: ${currentDate}\n`;
-          csvContent += `Tool: ${stats.analysisType}\n`;
-          csvContent += `Valid Images: ${validResults.length}\n`;
-          csvContent += `Total Size: ${stats.totalSizeMB} MB (${stats.totalSizeKB} KB)\n\n`;
+          // CSV Header with analysis info
+          let csvContent = `Website,${csvWebsiteName}\n`;
+          csvContent += `Date,${currentDate}\n`;
+          csvContent += `Tool,${stats.analysisType}\n`;
+          csvContent += `Valid Images,${validResults.length}\n`;
+          csvContent += `Total Size,${stats.totalSizeKB} KB\n`;
+          csvContent += `\n`; // Empty line
 
+          // Image Format Statistics Header
           csvContent += `=== Image Format Statistics ===\n`;
           Object.entries(stats.typeStats).forEach(([type, count]) => {
             const percentage = ((count / validResults.length) * 100).toFixed(1);
-            csvContent += `${type}: ${count} (${percentage}%)\n`;
+            csvContent += `${type},${count} (${percentage}%)\n`;
           });
+          csvContent += `\n`; // Empty line
 
-          csvContent += `\n`;
+          // Main data table header
+          csvContent += `Filename,Type,Content Type,Size (KB),Status,URL\n`;
 
-          // Create table format
-          const maxUrlLength = Math.max(
-            ...validResults.map((item) => item.url.length),
-            80
-          );
-          const urlColumnWidth = Math.min(maxUrlLength, 150);
-          const mbColumnWidth = 12;
-          const kbColumnWidth = 14;
-          const typeColumnWidth = 10;
-          const contentTypeColumnWidth = 25;
-          const filenameColumnWidth = 30;
-
-          const separator =
-            "+" +
-            "-".repeat(urlColumnWidth + 2) +
-            "+" +
-            "-".repeat(mbColumnWidth + 2) +
-            "+" +
-            "-".repeat(kbColumnWidth + 2) +
-            "+" +
-            "-".repeat(typeColumnWidth + 2) +
-            "+" +
-            "-".repeat(contentTypeColumnWidth + 2) +
-            "+" +
-            "-".repeat(filenameColumnWidth + 2) +
-            "+\n";
-
-          csvContent += separator;
-          csvContent +=
-            `| ${"Image Path".padEnd(urlColumnWidth)} | ` +
-            `${"Size (MB)".padEnd(mbColumnWidth)} | ` +
-            `${"Size (KB)".padEnd(kbColumnWidth)} | ` +
-            `${"Format".padEnd(typeColumnWidth)} | ` +
-            `${"Content Type".padEnd(contentTypeColumnWidth)} | ` +
-            `${"Filename".padEnd(filenameColumnWidth)} |\n`;
-          csvContent += separator;
-
+          // Data rows
           validResults.forEach((item) => {
-            csvContent +=
-              `| ${item.url.padEnd(urlColumnWidth)} | ` +
-              `${(item.sizeMB || "N/A").toString().padEnd(mbColumnWidth)} | ` +
-              `${(item.sizeKB || "N/A").toString().padEnd(kbColumnWidth)} | ` +
-              `${item.type.padEnd(typeColumnWidth)} | ` +
-              `${(item.contentType || "Unknown").padEnd(
-                contentTypeColumnWidth
-              )} | ` +
-              `${item.filename.padEnd(filenameColumnWidth)} |\n`;
-            csvContent += separator;
+            // Escape commas and quotes in CSV data
+            const filename = `"${item.filename.replace(/"/g, '""')}"`;
+            const type = item.type;
+            const contentType = `"${(item.contentType || "Unknown").replace(
+              /"/g,
+              '""'
+            )}"`;
+            const sizeKB = item.sizeKB || "N/A";
+            const status = item.status;
+            const url = `"${item.url.replace(/"/g, '""')}"`;
+
+            csvContent += `${filename},${type},${contentType},${sizeKB},${status},${url}\n`;
           });
 
           return csvContent;
