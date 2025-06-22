@@ -635,15 +635,6 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               Generate HTML reports for visual analysis or CSV reports for
               spreadsheet compatibility
             </li>
-            <li class="flex items-start">
-              <span
-                class="bg-orange-100 text-orange-800 p-1 rounded-full mr-2 flex-shrink-0 mt-0.5"
-              >
-                <i id="check-icon-3" class="h-3 w-3"></i>
-              </span>
-              <strong>Highlight Feature:</strong> Use highlight options to
-              automatically mark images larger than a specified size (in KB)
-            </li>
           </ul>
         </div>
       </div>
@@ -1019,7 +1010,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               );
 
               const extractResponse = await fetch(
-                "http://localhost:3000/api/extract-images",
+                "https://otools-server.onrender.com/api/analyze-images",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
