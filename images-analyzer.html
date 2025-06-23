@@ -1010,7 +1010,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               );
 
               const extractResponse = await fetch(
-                "http://localhost:3000/api/extract-images",
+                "https://otools-server.onrender.com/api/extract-images",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -1051,7 +1051,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             );
 
             const analyzeResponse = await fetch(
-              "http://localhost:3000/api/analyze-images",
+              "https://otools-server.onrender.com/api/analyze-images",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
