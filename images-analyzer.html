@@ -665,6 +665,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           </div>
           <p class="text-sm">&copy; 2025 ORANGE. All rights reserved.</p>
           <div class="flex space-x-4 items-center"></div>
+          <p class="text-sm">2.7</p>
         </div>
       </div>
     </footer>
@@ -1010,7 +1011,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               );
 
               const extractResponse = await fetch(
-                "https://otools-server.onrender.com/api/extract-images",
+                "http://localhost:3000/api/extract-images",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -1051,7 +1052,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             );
 
             const analyzeResponse = await fetch(
-              "https://otools-server.onrender.com/api/analyze-images",
+              "http://localhost:3000/api/analyze-images",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
