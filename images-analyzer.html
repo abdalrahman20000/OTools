@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Image Analyzer Tool</title>
+    <title>Enhanced Image Analyzer Tool</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -102,7 +102,7 @@
         text-align: left;
         padding: 12px 15px;
         border-bottom: 1px solid #e2e8f0;
-        height: 65px; /* Fixed height for uniform rows */
+        height: 70px; /* Adjusted height for location info only */
         vertical-align: middle;
       }
 
@@ -122,6 +122,45 @@
       tr:hover {
         background-color: #ebf8ff;
         transition: all 0.3s ease;
+      }
+
+      /* Location badge styling */
+      .location-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin: 1px;
+      }
+
+      .location-header {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .location-main {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+      .location-sidebar {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      .location-footer {
+        background-color: #e5e7eb;
+        color: #374151;
+      }
+      .location-navigation {
+        background-color: #e0e7ff;
+        color: #3730a3;
+      }
+      .location-content {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+      }
+      .location-unknown {
+        background-color: #fecaca;
+        color: #991b1b;
       }
 
       /* Tab styling */
@@ -213,10 +252,11 @@
       <div class="max-w-5xl mx-auto px-4 relative z-10">
         <!-- Page Title -->
         <div class="mb-8 text-center">
-          <h1 class="text-3xl font-bold text-gray-800">Image Analyzer</h1>
+          <h1 class="text-3xl font-bold text-gray-800">
+            Enhanced Image Analyzer
+          </h1>
           <p class="text-gray-600 mt-2">
-            Extract and analyze images from websites or analyze specific image
-            URLs
+            Extract and analyze images with detailed information from websites
           </p>
         </div>
 
@@ -251,8 +291,8 @@
               <p class="text-blue-700">
                 Enter a website URL to automatically extract and analyze all
                 images from the site. The tool will crawl the website, discover
-                images through multiple methods, and generate a comprehensive
-                report with optimized settings for faster analysis.
+                images through multiple methods, and generate comprehensive
+                reports with detailed information about each image found.
               </p>
             </div>
 
@@ -451,10 +491,10 @@ Example:
 https://example.com/assets/images/featured/2024/12/Smartphone-Series-A1.webp
 https://example.com/content/media/uploads/2023/07/tablet-pro-model.png?version=1.4
 https://example.com/files/styles/720x480/public/2025-03/Wireless-Earbuds-X2.jpg
-https://example.com/media/gallery/2022/11/Smart-TV-55inch-4K.png?itok=9f8gY2w
+https://example.com/media/gallery/2022/11/Smart-TV-55inch-4K.avif
 https://example.com/uploads/images/catalog/2023/05/laptop-gamer-z100.webp
-https://example.com/storage/public/images/2024-09/Bluetooth-Speaker-Mini.jpg
-https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=homepage"
+https://example.com/storage/public/images/2024-09/Bluetooth-Speaker-Mini.heic
+https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=homepage"
               ></textarea>
 
               <!-- Character count -->
@@ -605,7 +645,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             class="text-lg font-semibold text-gray-800 mb-3 flex items-center"
           >
             <i id="tip-icon" class="h-5 w-5 mr-2 text-orange-500"></i>
-            How to Use This Tool
+            Enhanced Features
           </h3>
           <ul class="space-y-2 text-gray-600">
             <li class="flex items-start">
@@ -623,8 +663,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >
                 <i id="check-icon-2" class="h-3 w-3"></i>
               </span>
-              <strong>Image URLs Analysis:</strong> Paste specific image URLs
-              (one per line) for direct analysis
+              <strong>All Image Formats:</strong> Supports WebP, AVIF, HEIC, JXL
+              and all modern image formats
             </li>
             <li class="flex items-start">
               <span
@@ -632,8 +672,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               >
                 <i id="check-icon-3" class="h-3 w-3"></i>
               </span>
-              Generate HTML reports for visual analysis or CSV reports for
-              spreadsheet compatibility
+              <strong>Detailed Reports:</strong> Generate comprehensive HTML and
+              CSV reports with complete image analysis
             </li>
           </ul>
         </div>
@@ -664,8 +704,9 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             </a>
           </div>
           <p class="text-sm">&copy; 2025 ORANGE. All rights reserved.</p>
-          <div class="flex space-x-4 items-center"></div>
-          <p class="text-sm">2.7</p>
+          <div class="w-[100px] flex justify-end">
+            <p class="text-sm">2.8</p>
+          </div>
         </div>
       </div>
     </footer>
@@ -1042,6 +1083,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                 `Found ${extractData.imageUrls.length} potential image URLs`
               );
               data.imageUrls = extractData.imageUrls;
+              data.locationData = extractData.locationData; // Include location data
             }
 
             // Analyze image URLs
@@ -1056,7 +1098,10 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ urls: data.imageUrls }),
+                body: JSON.stringify({
+                  urls: data.imageUrls,
+                  locationData: data.locationData, // Pass location data to analyzer
+                }),
               }
             );
 
@@ -1095,6 +1140,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
                 : "N/A",
               success: item.success,
               status: item.success ? "Success" : item.error || "Failed",
+              locationInfo: item.locationInfo || null, // Include location info
             }));
 
             // Calculate statistics and add analysis type
@@ -1170,6 +1216,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           const domainArray = Array.from(domains.entries());
           return domainArray[0][1]; // Return base URL of first domain
         }
+
         function getFilename(url) {
           try {
             const path = new URL(url).pathname;
@@ -1191,7 +1238,16 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             ico: "Icon",
             bmp: "BMP",
             tiff: "TIFF",
+            tif: "TIFF",
             avif: "AVIF",
+            heic: "HEIC",
+            heif: "HEIF",
+            jxl: "JPEG XL",
+            jp2: "JPEG 2000",
+            jpx: "JPEG 2000",
+            j2k: "JPEG 2000",
+            wdp: "HD Photo",
+            jxr: "JPEG XR",
           };
           return typeMap[extension] || "Unknown";
         }
@@ -1301,7 +1357,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             `;
           }
 
-          // Update results table (show all results)
+          // Update results table (show all results with location info)
           resultsTable.innerHTML = "";
           results.forEach((item, index) => {
             const row = document.createElement("tr");
@@ -1359,7 +1415,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
           resultsPreview.classList.remove("hidden");
         }
 
-        // Generate HTML report (Updated - removed Size MB column)
+        // Generate HTML report (Enhanced with location information)
         function generateHTMLReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
@@ -1389,13 +1445,13 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             websiteDisplayName = "Mixed Sources";
           }
 
-          // Generate HTML content matching PowerShell script format
+          // Generate HTML content with enhanced location information
           return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtered Image Analysis Report - ${stats.websiteName}</title>
+    <title>Enhanced Image Analysis Report - ${stats.websiteName}</title>
     <style>
         :root {
             --primary-color: #2b6cb0;
@@ -1579,7 +1635,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
         .table-container {
             background-color: white;
             padding: 25px;
-            border-radius: var(--border-radius);
+            border-radius: 12px;
             box-shadow: var(--box-shadow);
             overflow-x: auto;
         }
@@ -1589,16 +1645,16 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             width: 100%;
             margin: 0 auto;
             font-size: 0.9rem;
-            table-layout: fixed; /* Fixed layout for consistent column widths */
+            table-layout: fixed;
         }
 
         th, td {
             text-align: left;
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
-            height: 60px; /* Fixed row height */
+            height: 70px; /* Adjusted for location info only */
             vertical-align: middle;
-            overflow: hidden; /* Hide overflow content */
+            overflow: hidden;
         }
 
         th {
@@ -1607,21 +1663,16 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             position: sticky;
             top: 0;
             font-weight: 600;
-            height: auto; /* Allow header to have natural height */
+            height: auto;
         }
 
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
 
-        tr:hover {
-            background-color: #ebf8ff;
-            transition: var(--transition);
-        }
+
+
 
         .url-cell {
-            width: 45%; /* Increased width for URL column */
-            max-width: 45%;
+            width: 35%; /* Adjusted for location columns */
+            max-width: 35%;
             word-break: break-all;
             font-size: 0.85rem;
             position: relative;
@@ -1662,7 +1713,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
 
         /* Highlighting for large images */
         .highlighted-row {
-            background-color: #dbeafe !important; /* Light blue highlight */
+            background-color: #dbeafe !important;
             border-left: 4px solid #3b82f6 !important;
         }
 
@@ -1678,36 +1729,14 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
             background: linear-gradient(to right, transparent, #bfdbfe 70%) !important;
         }
 
-        .filename-cell {
-            width: 18%;
-            max-width: 18%;
-            word-break: break-all;
-        }
-
-        .preview-cell {
-            width: 8%;
-            text-align: center;
-        }
-
-        .size-cell {
-            width: 12%;
-            text-align: right;
-        }
-
-        .type-cell {
-            width: 9%;
-            text-align: center;
-        }
-
-        .content-type-cell {
-            width: 15%;
-            text-align: center;
-        }
-
-        .status-cell {
-            width: 8%;
-            text-align: center;
-        }
+        .filename-cell { width: 15%; max-width: 15%; word-break: break-all; }
+        .preview-cell { width: 8%; text-align: center; }
+        .location-cell { width: 12%; }
+        .position-cell { width: 10%; font-size: 0.8rem; }
+        .size-cell { width: 8%; text-align: right; }
+        .type-cell { width: 8%; text-align: center; }
+        .content-type-cell { width: 12%; text-align: center; }
+        .status-cell { width: 8%; text-align: center; }
 
         .image-link {
             color: var(--primary-color);
@@ -1792,7 +1821,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
 <body>
     <div class="container">
         <div class="report-header">
-            <h1>Image Analysis Report</h1>
+            <h1>Enhanced Image Analysis Report</h1>
             <p><strong>Website:</strong> <a href="${websiteUrl}" class="website-link" target="_blank">${websiteDisplayName}</a></p>
             <p><strong>Analysis Date:</strong> ${currentDate}</p>
             <p><strong>Tool:</strong> ${stats.analysisType}</p>
@@ -1866,8 +1895,8 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
 
                         // Truncate URL for display but keep full URL in href
                         const displayUrl =
-                          item.url.length > 80
-                            ? item.url.substring(0, 77)
+                          item.url.length > 60
+                            ? item.url.substring(0, 57)
                             : item.url;
 
                         // Check if this row should be highlighted
@@ -1917,7 +1946,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.png?ref=hom
 </html>`;
         }
 
-        // Generate CSV report (Simple Excel-like format)
+        // Generate CSV report (Enhanced with location data)
         function generateCSVReport(analysis) {
           const { results, stats } = analysis;
           const currentDate = new Date().toLocaleString();
