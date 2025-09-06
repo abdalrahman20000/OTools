@@ -1813,11 +1813,68 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
                 height: 40px;
             }
         }
+
+
+        .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 2;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.header-right {
+    margin-left: 20px;
+}
+
+.header-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.header-link:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.link-icon {
+    font-size: 16px;
+}
+
+@media only screen and (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .header-right {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="report-header">
+    <div class="header-content">
+        <div class="header-left">
             <h1>Enhanced Image Analysis Report</h1>
             <p><strong>Website:</strong> <a href="${websiteUrl}" class="website-link" target="_blank">${websiteDisplayName}</a></p>
             <p><strong>Analysis Date:</strong> ${currentDate}</p>
@@ -1828,6 +1885,14 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
                 : ""
             }
         </div>
+        <div class="header-right">
+            <a href="https://otools.example.com" class="header-link" target="_blank">
+                <span class="link-icon">🔗</span>
+                <span>Visit OTools</span>
+            </a>
+        </div>
+    </div>
+</div>
 
         <h2>Image Statistics</h2>
         <div class="stats-container">
