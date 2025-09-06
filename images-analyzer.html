@@ -267,7 +267,7 @@
               id="tab-url"
               class="tab-button active px-6 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300"
             >
-              🌐 Website URL Analysis
+              🌐 Images Analyzer
             </button>
             <button
               id="tab-urls"
@@ -277,7 +277,7 @@
             </button>
           </div>
 
-          <!-- Website URL Analysis Tab -->
+          <!-- Images Analyzer Tab -->
           <div id="content-url" class="tab-content active">
             <div
               class="bg-blue-50 rounded-xl p-6 mb-6 border-l-4 border-blue-500"
@@ -286,7 +286,7 @@
                 class="text-lg font-semibold text-blue-800 mb-2 flex items-center"
               >
                 <i id="globe-icon" class="h-5 w-5 mr-2"></i>
-                Website URL Analysis
+                Images Analyzer
               </h3>
               <p class="text-blue-700">
                 Enter a website URL to automatically extract and analyze all
@@ -654,7 +654,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
               >
                 <i id="check-icon-1" class="h-3 w-3"></i>
               </span>
-              <strong>Website URL Analysis:</strong> Enter a website URL to
+              <strong>Images Analyzer:</strong> Enter a website URL to
               automatically extract all images from the site
             </li>
             <li class="flex items-start">
@@ -811,7 +811,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
           }
         });
 
-        // Highlight Options dropdown functionality for Website URL Analysis
+        // Highlight Options dropdown functionality for Images Analyzer
         const highlightOptionsToggleUrl = document.getElementById(
           "highlight-options-toggle-url"
         );
@@ -1044,7 +1044,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
             let analysisResult;
 
             if (data.mode === "url") {
-              // Website URL analysis
+              // Images Analyzer
               updateProgress(
                 10,
                 "Extracting images from website...",
@@ -1149,9 +1149,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
             const stats = calculateStats(results, data.websiteUrl || "Unknown");
             stats.generationTime = generationTime;
             stats.analysisType =
-              data.mode === "url"
-                ? "Website URL Analysis"
-                : "Image URLs Analysis";
+              data.mode === "url" ? "Images Analyzer" : "Image URLs Analysis";
             stats.originalWebsiteUrl = data.websiteUrl || null;
             stats.highlightSize = data.highlightSize || null; // Add highlight size to stats
 
@@ -1306,8 +1304,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
           const { results, stats, summary } = analysis;
 
           // Different display based on analysis type
-          const isWebsiteAnalysis =
-            stats.analysisType === "Website URL Analysis";
+          const isWebsiteAnalysis = stats.analysisType === "Images Analyzer";
 
           // Update stats container with different info for each type
           if (isWebsiteAnalysis) {
@@ -1432,7 +1429,7 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
 
           if (stats.originalWebsiteUrl) {
             websiteUrl = stats.originalWebsiteUrl;
-            if (stats.analysisType === "Website URL Analysis") {
+            if (stats.analysisType === "Images Analyzer") {
               websiteDisplayName = stats.websiteName;
             } else {
               // For Image URLs Analysis, show the extracted website name
@@ -1552,14 +1549,14 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
         }
 
         .website-link {
-            color: #fff;
-            text-decoration: underline;
-            transition: var(--transition);
-        }
+    color: #ffb700;
+    text-decoration: underline;
+    transition: var(--transition);
+}
 
-        .website-link:hover {
-            color: var(--light-color);
-        }
+.website-link:hover {
+    color: #ff6a00;
+}
 
         .stats-container {
             background-color: white;
@@ -1711,23 +1708,23 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
             background: linear-gradient(to right, transparent, #ebf8ff 70%);
         }
 
-        /* Highlighting for large images */
-        .highlighted-row {
-            background-color: #dbeafe !important;
-            border-left: 4px solid #3b82f6 !important;
-        }
+        /* Highlighting for large images - changed to red */
+.highlighted-row {
+    background-color: #fee2e2 !important;
+    border-left: 4px solid #dc2626 !important;
+}
 
-        .highlighted-row:hover {
-            background-color: #bfdbfe !important;
-        }
+.highlighted-row:hover {
+    background-color: #fecaca !important;
+}
 
-        .highlighted-row .url-truncated::after {
-            background: linear-gradient(to right, transparent, #dbeafe 70%) !important;
-        }
+.highlighted-row .url-truncated::after {
+    background: linear-gradient(to right, transparent, #fee2e2 70%) !important;
+}
 
-        .highlighted-row:hover .url-truncated::after {
-            background: linear-gradient(to right, transparent, #bfdbfe 70%) !important;
-        }
+.highlighted-row:hover .url-truncated::after {
+    background: linear-gradient(to right, transparent, #fecaca 70%) !important;
+}
 
         .filename-cell { width: 15%; max-width: 15%; word-break: break-all; }
         .preview-cell { width: 8%; text-align: center; }
@@ -1827,27 +1824,37 @@ https://example.com/imgs/banners/featured/2025-01/Fitness-Tracker-V3.jxl?ref=hom
             <p><strong>Tool:</strong> ${stats.analysisType}</p>
             ${
               stats.highlightSize
-                ? `<p><strong>Highlighting:</strong> Images ≥ ${stats.highlightSize} KB are highlighted in light blue</p>`
+                ? `<p><strong>Highlighting:</strong> <span style="color: #dc2626;">Images ≥ ${stats.highlightSize} KB</span> are highlighted in red</p>`
                 : ""
             }
         </div>
 
         <h2>Image Statistics</h2>
         <div class="stats-container">
-            <div class="summary-items">
-                <div class="summary-item">
-                    <strong>${validResults.length}</strong>
-                    <span>Valid Images Found</span>
-                </div>
-                <div class="summary-item">
-                    <strong>${stats.totalSizeKB} KB</strong>
-                    <span>Total Size</span>
-                </div>
-                <div class="summary-item">
-                    <strong>${stats.successful}</strong>
-                    <span>Successfully Loaded</span>
-                </div>
-            </div>
+ <div class="summary-items">
+    <div class="summary-item">
+        <strong>${validResults.length}</strong>
+        <span>Valid Images Found</span>
+    </div>
+    <div class="summary-item">
+        <strong>${stats.totalSizeKB} KB</strong>
+        <span>Total Size</span>
+    </div>
+    <div class="summary-item">
+        ${
+          stats.highlightSize && stats.highlightSize > 0
+            ? `<strong style="color: #dc2626;">${
+                validResults.filter(
+                  (r) =>
+                    r.sizeBytes && r.sizeBytes / 1024 >= stats.highlightSize
+                ).length
+              }</strong>
+            <span>Images > ${stats.highlightSize} KB</span>`
+            : `<strong>${stats.successful}</strong>
+            <span>Successfully Loaded</span>`
+        }
+    </div>
+</div>
 
             <div class="stats-title">Distribution by Image Format</div>
             <div class="stats-grid">
